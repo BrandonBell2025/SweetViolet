@@ -41,27 +41,31 @@ With MongoDB’s schema-less nature, we can easily adapt the database to future 
 To set up and run the MongoDB database for **Sweet Violet**, follow the steps below:
 
 1. **Clone the Repository**
-   Clone the project’s GitHub repository to your local machine:
+   
+Clone the project’s GitHub repository to your local machine:
 
-   git clone https://github.com/your-username/sweet-violet-meal-planner.git
+git clone https://github.com/your-username/sweet-violet-meal-planner.git
 
-   Replace "your-username" with your GitHub username
+Replace "your-username" with your GitHub username
 
 2. **Create a `.env` File**
-   Create a `.env` file in the root directory to store your MongoDB connection string securely:
 
-   MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/?retryWrites=true&w=majority
+Create a `.env` file in the root directory to store your MongoDB connection string securely:
 
-   Replace `<username>` and `<password>` with your MongoDB credentials.
+MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/?retryWrites=true&w=majority
+
+Replace `<username>` and `<password>` with your MongoDB credentials.
 
 3. **Install Requirements.txt**
-   install all dependencies in one step:
 
-   pip install -r requirements.txt
+Install all requirements:
 
-   The `requirements.txt` file includes all the necessary libraries, such as `pymongo` and `python-dotenv`.
+pip install -r requirements.txt
+
+The `requirements.txt` file includes all the necessary libraries, such as `pymongo` and `python-dotenv`.
 
 4. **Run the Database Setup Script**
-   After installing the dependencies, run the database 
 
-   python initialize_database.py
+After installing the dependencies, run the database 
+
+python initialize_database.py
