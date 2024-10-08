@@ -1,18 +1,26 @@
+import os
+from dotenv import load_dotenv
 import pymongo
 from pymongo.mongo_client import MongoClient
 from pymongo.server_api import ServerApi
 
+# Load environment variables from .env file
+load_dotenv()
+
+# Get MongoDB URI from environment variable
+mongodb_uri = os.getenv('MONGODB_URI')
+
 # Connect with MongoDB
-uri = "mongodb+srv://Allen:yeet@sweet-violet-database.7mf4d.mongodb.net/?retryWrites=true&w=majority&appName=Sweet-Violet-Database"
-client = MongoClient(uri, server_api=ServerApi('1'))
+client = pymongo.MongoClient(mongodb_uri)
+
+# Define database and schemas for collections
+db = client["Sweet_Violet"]
+
 try:
     client.admin.command('ping')
     print("Pinged your deployment. You successfully connected to MongoDB!")
 except Exception as e:
     print(e)
-
-# Define database and schemas for collections
-db = client["Sweet_Violet"]
 
 # Define schema for Users_Collection
 user_schema = {
