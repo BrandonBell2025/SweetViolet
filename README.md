@@ -53,7 +53,9 @@ Replace "your-username" with your GitHub username
 
 Create a `.env` file in the root directory to store your MongoDB connection string securely:
 
-MONGODB_URI=mongodb+srv://<username>:<password>@cluster0.mongodb.net/?retryWrites=true&w=majority
+```bash
+MONGODB_URI = "mongodb+srv://<username>:<password>@sweet-violet-database.7mf4d.mongodb.net/?retryWrites=true&w=majority&appName=Sweet-Violet-Database"
+```
 
 Replace `<username>` and `<password>` with your MongoDB credentials.
 
@@ -70,3 +72,4 @@ The `requirements.txt` file includes all the necessary libraries, such as `pymon
 After installing the dependencies, run the database 
 
 python initialize_database.py
+
