@@ -130,8 +130,8 @@ mealPlanSchema = {
 # Create collections
 db.create_collection("Users_Collection", validator=user_schema)
 db.create_collection("Tags_Collection", validator=tag_schema)
-db.createCollection("Meals_Collection", validator: mealSchema)
-db.createCollection("MealPlan_Collection", validator: mealPlanSchema)
+db.createCollection("Meals_Collection", validator=mealSchema)
+db.createCollection("MealPlan_Collection", validator=mealPlanSchema)
 # Insert data into Users_Collection
 
 
