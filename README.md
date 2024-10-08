@@ -44,8 +44,9 @@ To set up and run the MongoDB database for **Sweet Violet**, follow the steps be
 1. **Clone the Repository**
    
 Clone the project’s GitHub repository to your local machine:
-
-git clone https://github.com/your-username/sweet-violet-meal-planner.git
+```bash
+git clone https://github.com/your-username/ProjectsInDataScience.git
+```
 
 Replace "your-username" with your GitHub username
 
