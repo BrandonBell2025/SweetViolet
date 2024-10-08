@@ -203,7 +203,7 @@ tags = [
 ]
 tags_collection.insert_many(tags)
 
-meal_plan_collection = db["MealPlan_Collection"]
+meal_plan_collection = db["Meal_Plan_Collection"]
 meal_plans = [
     {
         "mealplanID": "mealplan_001",
