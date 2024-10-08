@@ -1,5 +1,6 @@
 # Sweet Violet - Dynamic Meal Planner
-by: Allen, Brandon, Howard, and Yongje
+
+By: Allen, Brandon, Howard, and Yongje
 
 ## Overview
 
