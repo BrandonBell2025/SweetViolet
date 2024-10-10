@@ -2,3 +2,5 @@ python-dotenv
 pymongo[srv]
 pandas
 requests
+selenium
+webdriver-manager
