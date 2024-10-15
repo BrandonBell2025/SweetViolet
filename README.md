@@ -24,6 +24,9 @@ Our database is organized into four key collections:
 4. **Meal Plans Collection**: Stores information about meal plans, which include scheduled meals and their serving sizes over a specific time period.
     - Fields: `mealplanID`, `userID`, `meals`, `servingSizes`, `scheduledDates`, `startDate`, `endDate`, `targetNutrition (calories, protein, carbs, fat)`.
 
+5. **Trader Joe's Items Collection**: Stores item information from Trader Joe's, enabling users to incorporate specific products into their meal planning and grocery list.
+    - Fields: `item-title`, `sku`, `sales_size`, `retail_price`, `storeCode`
+
 ## Data Model Rationale
 We chose **MongoDB** for our project because of the flexibility it offers in handling semi-structured and evolving data. Our application requires the ability to store varying nutritional information and user-specific data, which may change or expand over time. Most foods do not have every source of nutrition in it, which may result in NULL data in some fields. Thus, MongoDB's NoSQL data suits our needs.
 
@@ -36,6 +39,45 @@ With MongoDB’s schema-less nature, we can easily adapt the database to future 
 - After each meal is logged, the system recalculates the user's daily nutritional intake.
 - If a user exceeds their calorie goal for the day, the app compensates by recommending lower-calorie meals for the following day to maintain a balanced overall intake.
 - This dynamic approach ensures users stay on track with their health goals, even if they occasionally indulge in high-calorie or unhealthy foods.
+
+## Trader Joe's API
+
+As part of **Sweet Violet**, we developed a Trader Joe’s API to enrich our meal planning app with additional grocery data. This API allows users to access a catalog of Trader Joe’s items along with store location information, which can be useful for meal planning and sourcing ingredients.
+
+Features
+
+1.	Item Data: Scrapes and retrieves information on various items available at Trader Joe’s, including product names, categories, and price details.
+2.	Store Location Data: Retrieves details about Trader Joe’s store locations to help users find stores nearby.
+3.  API provides CRUD (Create, Read, Update, Delete) operations for managing items. Below is a guide on how to use each endpoint.
+
+### 1. GET All Items
+- **Description:** Retrieves a list of all items in the collection.
+- **Endpoint:** `GET /items/`
+- **Request:** No body is needed for this request.
+- **Response:** Returns a list of items, each with an `_id` and other properties.
+
+### 2. GET Single Item by ID
+- **Description:** Retrieves a single item by its ID.
+- **Endpoint:** `GET /items/{item_id}`
+- **Response:** Returns the item if found, otherwise a 404 error if the item is not found or a 400 error if the ID is invalid.
+
+### 3. POST a New Item
+- **Description:** Creates a new item in the collection.
+- **Endpoint:** `POST /items/`
+- **Request:** A JSON object representing the item to create.
+- **Response:** Returns the ID of the newly created item.
+
+### 4. PUT (Update) an Existing Item by ID
+- **Description:** Updates an existing item by its ID.
+- **Endpoint:** `PUT /items/{item_id}`
+- **Request:** A JSON object representing the updated item data.
+- **Response:** Returns a success message if the update was successful. If the item is not found, returns a 404 error, and if the ID is invalid, returns a 400 error.
+
+### 5. DELETE an Item by ID
+- **Description:** Deletes an item from the collection by its ID.
+- **Endpoint:** `DELETE /items/{item_id}`
+- **Response:** Returns a success message if the deletion was successful. If the item is not found, returns a 404 error, and if the ID is invalid, returns a 400 error.
+
 
 ## Database Setup
 
