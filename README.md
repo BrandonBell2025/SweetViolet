@@ -10,7 +10,7 @@ The application uses MongoDB to manage user profiles, meal details, tags for cat
 
 ## Data Model
 
-Our database is organized into four key collections:
+Our database is organized into five key collections:
 
 1. **Users Collection**: Stores information about users, including their personal details, health goals, and dietary preferences.
     - Fields: `_id`, `firstName`, `lastName`, `healthGoal`, `calorieGoal`, `proteinGoal`, `carbsGoal`, `age`, `sex`, `height`, `weight`.
@@ -39,45 +39,6 @@ With MongoDB’s schema-less nature, we can easily adapt the database to future 
 - After each meal is logged, the system recalculates the user's daily nutritional intake.
 - If a user exceeds their calorie goal for the day, the app compensates by recommending lower-calorie meals for the following day to maintain a balanced overall intake.
 - This dynamic approach ensures users stay on track with their health goals, even if they occasionally indulge in high-calorie or unhealthy foods.
-
-## Trader Joe's API
-
-As part of **Sweet Violet**, we developed a Trader Joe’s API to enrich our meal planning app with additional grocery data. This API allows users to access a catalog of Trader Joe’s items along with store location information, which can be useful for meal planning and sourcing ingredients.
-
-Features
-
-1.	Item Data: Scrapes and retrieves information on various items available at Trader Joe’s, including product names, categories, and price details.
-2.	Store Location Data: Retrieves details about Trader Joe’s store locations to help users find stores nearby.
-3.  API provides CRUD (Create, Read, Update, Delete) operations for managing items. Below is a guide on how to use each endpoint.
-
-### 1. GET All Items
-- **Description:** Retrieves a list of all items in the collection.
-- **Endpoint:** `GET /items/`
-- **Request:** No body is needed for this request.
-- **Response:** Returns a list of items, each with an `_id` and other properties.
-
-### 2. GET Single Item by ID
-- **Description:** Retrieves a single item by its ID.
-- **Endpoint:** `GET /items/{item_id}`
-- **Response:** Returns the item if found, otherwise a 404 error if the item is not found or a 400 error if the ID is invalid.
-
-### 3. POST a New Item
-- **Description:** Creates a new item in the collection.
-- **Endpoint:** `POST /items/`
-- **Request:** A JSON object representing the item to create.
-- **Response:** Returns the ID of the newly created item.
-
-### 4. PUT (Update) an Existing Item by ID
-- **Description:** Updates an existing item by its ID.
-- **Endpoint:** `PUT /items/{item_id}`
-- **Request:** A JSON object representing the updated item data.
-- **Response:** Returns a success message if the update was successful. If the item is not found, returns a 404 error, and if the ID is invalid, returns a 400 error.
-
-### 5. DELETE an Item by ID
-- **Description:** Deletes an item from the collection by its ID.
-- **Endpoint:** `DELETE /items/{item_id}`
-- **Response:** Returns a success message if the deletion was successful. If the item is not found, returns a 404 error, and if the ID is invalid, returns a 400 error.
-
 
 ## Database Setup
 
@@ -116,3 +77,58 @@ After installing the dependencies, run the database
 
 python initialize_database.py
 
+## Trader Joe's API
+
+As part of **Sweet Violet**, we developed a Trader Joe’s API to enrich our meal planning app with additional grocery data. This API allows users to access a catalog of Trader Joe’s items along with store location information, which can be useful for meal planning and sourcing ingredients.
+
+Features
+
+1.	Item Data: Scrapes and retrieves information on various items available at Trader Joe’s, including product names, categories, and price details.
+2.	Store Location Data: Retrieves details about Trader Joe’s store locations to help users find stores nearby.
+3.  API provides CRUD (Create, Read, Update, Delete) operations for managing items. Below is a guide on how to use each endpoint.
+
+## API Setup
+
+To set up and run the **Trader Joe’s API**, follow these steps:
+
+1. **Download Postman and Create an Account**
+
+   Download the Postman extension for your browser and create an account if you don’t already have one.
+
+2. **Run the API**
+
+   Use the following command to run the API with Uvicorn:
+   ```bash
+   uvicorn api:app --reload
+   ```
+
+## Testing the API
+
+You can test the API with the following endpoints via Postman or a web browser:
+
+- **GET All Items**: 
+  - Description: Retrieves a list of all items stored in the database.
+  - Endpoint: `http://127.0.0.1:8000/items/`
+  - **Response:** Returns a list of items, each with an `_id`, `title`, `price`, `sku`, `description`, and `tags`.
+
+- **GET Single Item by ID**: 
+  - Description: Retrieves a specific item based on its ID.
+  - Endpoint: `http://127.0.0.1:8000/items/{item_id}`
+  - **Response:** Returns an item with the specified `item_id`, along with its properties such as `title`, `price`, `sku`, `description`, and `tags`.
+
+- **POST New Item**: 
+  - Description: Adds a new item to the database.
+  - Endpoint: `http://127.0.0.1:8000/items/`
+  - **Request Body:** JSON object containing `title`, `price`, `sku`, `description`, and `tags`.
+  - **Response:** Returns the created item with an `_id` and all provided properties.
+
+- **PUT Update Item by ID**: 
+  - Description: Updates an existing item based on its ID.
+  - Endpoint: `http://127.0.0.1:8000/items/{item_id}`
+  - **Request Body:** JSON object containing updated properties like `title`, `price`, `sku`, `description`, and `tags`.
+  - **Response:** Returns the updated item with its `_id` and updated properties.
+
+- **DELETE Item by ID**: 
+  - Description: Deletes a specific item from the database based on its ID.
+  - Endpoint: `http://127.0.0.1:8000/items/{item_id}`
+  - **Response:** Returns a confirmation message indicating the item has been deleted.
