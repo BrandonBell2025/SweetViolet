@@ -48,7 +48,7 @@ To set up and run the MongoDB database for **Sweet Violet**, follow the steps be
    
 Clone the project’s GitHub repository to your local machine:
 ```bash
-git clone https://github.com/your-username/ProjectsInDataScience.git
+git clone https://github.com/BrandonBell2025/SweetViolet.git
 ```
 
 Replace "your-username" with your GitHub username
