@@ -4,7 +4,7 @@ from pymongo.errors import ConnectionFailure, BulkWriteError
 
 # MongoDB connection setup
 try:
-    client = MongoClient("mongodb+srv://Allen:yeet@sweet-violet-database.7mf4d.mongodb.net/?retryWrites=true&w=majority&appName=Sweet-Violet-Database")  # Replace with your MongoDB URI
+    client = MongoClient("")  # Replace with your MongoDB URI
     db = client["Sweet_Violet"]
     collection = db["Recipes"]
 except ConnectionFailure as e:
