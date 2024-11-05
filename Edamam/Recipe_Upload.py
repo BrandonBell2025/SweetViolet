@@ -1,10 +1,14 @@
 import csv
 from pymongo import MongoClient
 from pymongo.errors import ConnectionFailure, BulkWriteError
+import os
+from dotenv import load_dotenv
 
 # MongoDB connection setup
 try:
-    client = MongoClient("")  
+    load_dotenv()
+    mongodb_uri = os.getenv('MONGODB_URI')
+    client = MongoClient(mongodb_uri)  
     db = client["Sweet_Violet"]
     collection = db["Recipes"]
 except ConnectionFailure as e:
