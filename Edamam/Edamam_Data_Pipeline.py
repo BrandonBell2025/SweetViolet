@@ -1,6 +1,13 @@
 import requests
 import csv
 import time
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+edmama_id = os.getenv("EDAMAM_ID")
+edmama_key = os.getenv("EDAMAM_KEY")
 
 # Define the headers for the CSV
 headers = [
@@ -21,7 +28,7 @@ nutrients_headers = ["ENERC_KCAL", "FAT", "FASAT", "FATRN", "FAMS", "FAPU",
 headers.extend(nutrients_headers)
 
 # Open the CSV file in append mode
-csv_file = "recipes.csv"
+csv_file = "recipesTest.csv"
 with open(csv_file, mode="a", newline="") as file:
     writer = csv.writer(file)
 
@@ -142,7 +149,7 @@ dishes = [
 # Fetch data for each dish and append to CSV
 for dish in dishes:
     try:
-        url = f"https://api.edamam.com/api/recipes/v2?type=public&q={dish}&app_id={I sent this into our gc}&app_key={I sent this into our gc}&field=label&field=cuisineType&field=mealType&field=ingredients&field=calories&field=dietLabels&field=totalNutrients"
+        url = f"https://api.edamam.com/api/recipes/v2?type=public&q={dish}&app_id={edmama_id}&app_key={edmama_key}&field=label&field=cuisineType&field=mealType&field=ingredients&field=calories&field=dietLabels&field=totalNutrients"
         response = requests.get(url)
         recipe_data = response.json()
         # Check if there are recipes available for the dish
