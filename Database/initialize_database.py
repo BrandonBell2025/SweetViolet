@@ -43,43 +43,61 @@ user_schema = {
     }
 }
 
-# Schema for tags related to meals
-tag_schema = {
+# Schema for recipes from Edamam
+recipes_schema = {
     "$jsonSchema": {
         "bsonType": "object",
-        "required": ["_id", "name"],
+        "required": ["_id", "Recipe_Name", "calories", "cuisine_type", "meal_type", "diet_labels", "ingredients", "nutrients"],
         "properties": {
             "_id": {"bsonType": "string"},
-            "name": {"bsonType": "string"},
-            "description": {"bsonType": "string"}
-        }
-    }
-}
-
-# Schema for meals containing nutrition details and associations with users and tags
-meal_schema = {
-    "$jsonSchema": {
-        "bsonType": "object",
-        "required": ["_id", "mealName", "userID", "mealTime", "date", "nutrition", "tags"],
-        "properties": {
-            "_id": {"bsonType": "string"},
-            "mealName": {"bsonType": "string"},
-            "description": {"bsonType": "string"},
-            "userID": {"bsonType": "string"},
-            "mealTime": {"bsonType": "string"},
-            "date": {"bsonType": "string"},
-            "nutrition": {
-                "bsonType": "object",
-                "properties": {
-                    "calories": {"bsonType": "int"},
-                    "protein": {"bsonType": "int"},
-                    "carbs": {"bsonType": "int"},
-                    "fat": {"bsonType": "int"}
+            "Recipe_Name": {"bsonType": "string"},
+            "calories": {"bsonType": ["double", "null"]},
+            "cuisine_type": {"bsonType": "string"},
+            "meal_type": {"bsonType": "string"},
+            "diet_labels": {
+                "bsonType": "array",
+                "items": {"bsonType": "string"}
+            },
+            "ingredients": {
+                "bsonType": "array",
+                "items": {
+                    "bsonType": "object",
+                    "required": ["name", "quantity", "unit"],
+                    "properties": {
+                        "name": {"bsonType": "string"},
+                        "quantity": {"bsonType": "string"},
+                        "unit": {"bsonType": "string"}
+                    }
                 }
             },
-            "tags": {
-                "bsonType": "array",
-                "items": {"bsonType": "string"}  # Array of tag IDs related to the meal
+            "nutrients": {
+                "bsonType": "object",
+                "properties": {
+                    "ENERC_KCAL": {"bsonType": "double"},
+                    "FAT": {"bsonType": "double"},
+                    "FASAT": {"bsonType": "double"},
+                    "FATRN": {"bsonType": "double"},
+                    "FAMS": {"bsonType": "double"},
+                    "FAPU": {"bsonType": "double"},
+                    "CHOCDF": {"bsonType": "double"},
+                    "FIBTG": {"bsonType": "double"},
+                    "SUGAR": {"bsonType": "double"},
+                    "PROCNT": {"bsonType": "double"},
+                    "CHOLE": {"bsonType": "double"},
+                    "NA": {"bsonType": "double"},
+                    "CA": {"bsonType": "double"},
+                    "MG": {"bsonType": "double"},
+                    "K": {"bsonType": "double"},
+                    "FE": {"bsonType": "double"},
+                    "ZN": {"bsonType": "double"},
+                    "P": {"bsonType": "double"},
+                    "VITA_RAE": {"bsonType": "double"},
+                    "VITC": {"bsonType": "double"},
+                    "VITD": {"bsonType": "double"},
+                    "TOCPHA": {"bsonType": "double"},
+                    "VITK1": {"bsonType": "double"},
+                    "WATER": {"bsonType": "double"}
+                }
             }
         }
     }
@@ -129,141 +147,73 @@ meal_plan_schema = {
 
 # Function to create collections with specified schema validation in MongoDB
 def create_collections():
-    db.create_collection("Users_Collection", validator=user_schema)
-    db.create_collection("Tags_Collection", validator=tag_schema)
-    db.create_collection("Meals_Collection", validator=meal_schema)
-    db.create_collection("MealPlan_Collection", validator=meal_plan_schema)
+    # Check and create Users_Collection if it doesn't exist
+    if "Users_Collection" not in db.list_collection_names():
+        db.create_collection("Users_Collection", validator=user_schema)
+        print("Created Users_Collection with validation.")
+    else:
+        print("Users_Collection already exists.")
+
+    # Check and create Recipes if it doesn't exist
+    if "Recipes" not in db.list_collection_names():
+        db.create_collection("Recipes", validator=recipes_schema)
+        print("Created Recipes collection with validation.")
+    else:
+        print("Recipes collection already exists.")
+
+    # Check and create MealPlan_Collection if it doesn't exist
+    if "MealPlan_Collection" not in db.list_collection_names():
+        db.create_collection("MealPlan_Collection", validator=meal_plan_schema)
+        print("Created MealPlan_Collection with validation.")
+    else:
+        print("MealPlan_Collection already exists.")
 
 # Function to insert multiple user records into Users_Collection
 def insert_users(users):
     users_collection = db["Users_Collection"]
     users_collection.insert_many(users)  # Insert the list of users into the collection
 
-# Function to insert multiple meal records into Meals_Collection
-def insert_meals(meals):
-    meals_collection = db["Meals_Collection"]
-    meals_collection.insert_many(meals)  # Insert the list of meals into the collection
-
-# Function to insert multiple tag records into Tags_Collection
-def insert_tags(tags):
-    tags_collection = db["Tags_Collection"]
-    tags_collection.insert_many(tags)  # Insert the list of tags into the collection
-
 # Function to insert multiple meal plan records into MealPlan_Collection
 def insert_meal_plans(meal_plans):
     meal_plan_collection = db["MealPlan_Collection"]
     meal_plan_collection.insert_many(meal_plans)  # Insert the list of meal plans into the collection
 
-# Sample data for users, meals, tags, and meal plans to populate the database
+# Sample data for users
 users_data = [
     {"_id": "user_001", "firstName": "Yongje", "lastName": "Jeon", "healthGoal": "lose_weight", "calorieGoal": 2000, "proteinGoal": 150, "carbsGoal": 100, "age": 20, "sex": "Male", "height": 72, "weight": 160},
     {"_id": "user_002", "firstName": "Allen", "lastName": "Feng", "healthGoal": "lose_weight", "calorieGoal": 2000, "proteinGoal": 150, "carbsGoal": 100, "age": 20, "sex": "Male", "height": 72, "weight": 160}
 ]
 
-# Sample data for meals with nutritional information and associated tags
-meals_data = [
-    {
-        "_id": "Meal_001",
-        "mealName": "Chicken Salad",
-        "description": "Healthy and low-calorie chicken salad.",
-        "userID": "user_001",  # Reference to user who logged this meal
-        "mealTime": "lunch",
-        "date": "2024-10-06",
-        "nutrition": {
-            "calories": 500,
-            "protein": 30,
-            "carbs": 45,
-            "fat": 15
-        },
-        "tags": ["tag_001", "tag_002"]  # Associated tags for meal categorization
-    },
-    {
-        "_id": "Meal_002",
-        "mealName": "Beef Stir Fry",
-        "description": "High protein stir fry with veggies.",
-        "userID": "user_002",  # Reference to user who logged this meal
-        "mealTime": "dinner",
-        "date": "2024-10-06",
-        "nutrition": {
-            "calories": 700,
-            "protein": 45,
-            "carbs": 60,
-            "fat": 20
-        },
-        "tags": ["tag_003", "tag_004"]  # Associated tags for meal categorization
-    },
-    {
-        "_id": "Meal_003",
-        "mealName": "Avocado Toast",
-        "description": "Simple and nutritious breakfast.",
-        "userID": "user_001",  # Reference to user who logged this meal
-        "mealTime": "breakfast",
-        "date": "2024-10-07",
-        "nutrition": {
-            "calories": 350,
-            "protein": 8,
-            "carbs": 30,
-            "fat": 25
-        },
-        "tags": ["tag_001", "tag_003"]  # Associated tags for meal categorization
-    }
-]
-
-# Sample data for meal tags
-tags_data = [
-    {"_id": "tag_001", "name": "salad", "description": "Healthy leafy dishes."},
-    {"_id": "tag_002", "name": "protein", "description": "Meals high in protein."},
-    {"_id": "tag_003", "name": "breakfast", "description": "Meals for breakfast."},
-    {"_id": "tag_004", "name": "stir fry", "description": "Meals cooked by stir-frying."}
-]
-
-# Sample data for meal plans with references to meals and user
+# Sample data for meal plans with updated meal IDs
 meal_plans_data = [
     {
         "_id": "meal_plan_001",
         "userID": "user_001",  # Reference to user creating this meal plan
-        "meals": ["Meal_001", "Meal_003"],  # Meals included in this meal plan
-        "servingSizes": [
-            {"mealID": "Meal_001", "servingSize": "1 serving"},
-            {"mealID": "Meal_003", "servingSize": "2 slices"}
-        ],
-        "scheduledDates": ["2024-10-06", "2024-10-07"],  # Dates for scheduled meals
-        "startDate": "2024-10-06",
-        "endDate": "2024-10-13",
-        "targetNutrition": {
-            "calories": 2000,
-            "protein": 150,
-            "carbs": 100,
-            "fat": 50
-        },
-        "description": "Weekly meal plan for balanced nutrition."
+        "meals": ["6722e77434dd1384842ab334", "6722e77534dd1384842ab335"],  # Updated Meal IDs in the plan
+        "servingSizes": [{"mealID": "6722e77434dd1384842ab334", "servingSize": "1 cup"}, {"mealID": "6722e77534dd1384842ab335", "servingSize": "1 plate"}],
+        "scheduledDates": ["2024-11-01", "2024-11-02"],  # Dates when meals are scheduled
+        "startDate": "2024-11-01",
+        "endDate": "2024-11-07",
+        "targetNutrition": {"calories": 2000, "protein": 150, "carbs": 100, "fat": 70},
+        "description": "Weekly meal plan focusing on weight loss."
     },
     {
         "_id": "meal_plan_002",
         "userID": "user_002",  # Reference to user creating this meal plan
-        "meals": ["Meal_002"],  # Meals included in this meal plan
-        "servingSizes": [
-            {"mealID": "Meal_002", "servingSize": "1 plate"}
-        ],
-        "scheduledDates": ["2024-10-06"],  # Dates for scheduled meals
-        "startDate": "2024-10-06",
-        "endDate": "2024-10-06",
-        "targetNutrition": {
-            "calories": 700,
-            "protein": 45,
-            "carbs": 60,
-            "fat": 20
-        },
-        "description": "Single meal plan for dinner."
+        "meals": ["6722e77534dd1384842ab336", "6722e77534dd1384842ab337"],  # Updated Meal IDs in the plan
+        "servingSizes": [{"mealID": "6722e77534dd1384842ab336", "servingSize": "2 cups"}, {"mealID": "6722e77534dd1384842ab337", "servingSize": "1 bowl"}],
+        "scheduledDates": ["2024-11-03", "2024-11-04"],  # Dates when meals are scheduled
+        "startDate": "2024-11-03",
+        "endDate": "2024-11-10",
+        "targetNutrition": {"calories": 2500, "protein": 200, "carbs": 150, "fat": 80},
+        "description": "Weekly meal plan for muscle gain."
     }
 ]
 
-# Create collections with schemas and insert sample data
-create_collections()  # Create the defined collections with validation schemas
-insert_users(users_data)  # Insert sample users
-insert_meals(meals_data)  # Insert sample meals
-insert_tags(tags_data)  # Insert sample tags
-insert_meal_plans(meal_plans_data)  # Insert sample meal plans
+# Run the functions to create collections and insert sample data
+create_collections()
+#insert_users(users_data)
+insert_meal_plans(meal_plans_data)
 
-# Check the connection to MongoDB
+# Check MongoDB connection
 check_connection(client)
