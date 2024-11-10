@@ -1,9 +1,12 @@
 from fastapi import FastAPI, HTTPException
+import uvicorn
 from pydantic import BaseModel
 from pymongo import MongoClient
 from bson import ObjectId
 import os
 from dotenv import load_dotenv
+from fastapi.middleware.cors import CORSMiddleware
+
 
 # Load environment variables from .env file
 load_dotenv()
@@ -19,6 +22,19 @@ users_collection = db["Users_Collection"]  # New collection for users
 
 # Initialize FastAPI app
 app = FastAPI()
+
+#handle CORS issues
+origins = [
+    "http://localhost:3000"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # Allow specific origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allow all HTTP methods
+    allow_headers=["*"],  # Allow all headers
+)
 
 # Pydantic models to ensure proper data validation
 class Item(BaseModel):
@@ -278,3 +294,6 @@ async def delete_meal_plan(meal_plan_id: str):
             raise HTTPException(status_code=404, detail="Meal Plan not found")
     except Exception as e:
         raise HTTPException(status_code=400, detail="Invalid meal plan ID")
+
+if __name__ == "__main__":
+    uvicorn.run("api:app", host="0.0.0.0", port=8000, reload=True)
