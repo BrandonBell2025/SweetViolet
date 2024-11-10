@@ -103,11 +103,10 @@ recipes_schema = {
     }
 }
 
-# Schema for meal plans that group meals and track user-specific information
 meal_plan_schema = {
     "$jsonSchema": {
         "bsonType": "object",
-        "required": ["_id", "userID", "meals", "servingSizes", "scheduledDates", "startDate", "endDate", "targetNutrition"],
+        "required": ["_id", "userID", "meals", "scheduledDates", "targetNutrition"],
         "properties": {
             "_id": {"bsonType": "string"},
             "userID": {"bsonType": "string"},
@@ -115,22 +114,19 @@ meal_plan_schema = {
                 "bsonType": "array",
                 "items": {"bsonType": "string"}  # Array of meal IDs in the plan
             },
-            "servingSizes": {
+            "scheduledDates": {
                 "bsonType": "array",
                 "items": {
                     "bsonType": "object",
                     "properties": {
-                        "mealID": {"bsonType": "string"},
-                        "servingSize": {"bsonType": "string"}
-                    }
+                        "day": {"bsonType": "int"},  # Day number, e.g., 1 for Day 1
+                        "breakfast": {"bsonType": "string"},  # Optional meal ID for breakfast
+                        "lunch": {"bsonType": "string"},      # Optional meal ID for lunch
+                        "dinner": {"bsonType": "string"}      # Optional meal ID for dinner
+                    },
+                    "additionalProperties": False
                 }
             },
-            "scheduledDates": {
-                "bsonType": "array",
-                "items": {"bsonType": "string"}  # Dates when meals are scheduled
-            },
-            "startDate": {"bsonType": "string"},
-            "endDate": {"bsonType": "string"},
             "targetNutrition": {
                 "bsonType": "object",
                 "properties": {
@@ -144,6 +140,7 @@ meal_plan_schema = {
         }
     }
 }
+
 
 # Function to create collections with specified schema validation in MongoDB
 def create_collections():
@@ -184,29 +181,78 @@ users_data = [
     {"_id": "user_002", "firstName": "Allen", "lastName": "Feng", "healthGoal": "lose_weight", "calorieGoal": 2000, "proteinGoal": 150, "carbsGoal": 100, "age": 20, "sex": "Male", "height": 72, "weight": 160}
 ]
 
-# Sample data for meal plans with updated meal IDs
 meal_plans_data = [
     {
-        "_id": "meal_plan_001",
-        "userID": "user_001",  # Reference to user creating this meal plan
-        "meals": ["6722e77434dd1384842ab334", "6722e77534dd1384842ab335"],  # Updated Meal IDs in the plan
-        "servingSizes": [{"mealID": "6722e77434dd1384842ab334", "servingSize": "1 cup"}, {"mealID": "6722e77534dd1384842ab335", "servingSize": "1 plate"}],
-        "scheduledDates": ["2024-11-01", "2024-11-02"],  # Dates when meals are scheduled
-        "startDate": "2024-11-01",
-        "endDate": "2024-11-07",
-        "targetNutrition": {"calories": 2000, "protein": 150, "carbs": 100, "fat": 70},
-        "description": "Weekly meal plan focusing on weight loss."
+        "_id": "mealplan001",
+        "userID": "user001",
+        "meals": [
+            "6722e77434dd1384842ab334", "6722e77534dd1384842ab335", "6722e77534dd1384842ab336",
+            "6722e77534dd1384842ab337", "6722e77534dd1384842ab338", "6722e77534dd1384842ab339", 
+            "6722e77534dd1384842ab33c", "6722e77534dd1384842ab33a", "6722e77534dd1384842ab345", 
+            "6722e77534dd1384842ab346", "6722e77534dd1384842ab348", "6722e77534dd1384842ab34a", 
+            "6722e77634dd1384842ab34d", "6722e77634dd1384842ab351", "6722e77634dd1384842ab35b", 
+            "6722e77634dd1384842ab35c", "6722e77634dd1384842ab35d", "6722e77634dd1384842ab363", 
+            "6722e77634dd1384842ab364", "6722e77734dd1384842ab36d", "6722e77734dd1384842ab36e"
+        ],
+        "scheduledDates": [
+            { "day": 1, "breakfast": "6722e77534dd1384842ab336", "lunch": "6722e77634dd1384842ab34d", "dinner": "6722e77534dd1384842ab33c" },
+            { "day": 2, "breakfast": "6722e77634dd1384842ab35b", "lunch": "6722e77534dd1384842ab335", "dinner": "6722e77534dd1384842ab34a" },
+            { "day": 3, "breakfast": "6722e77534dd1384842ab338", "lunch": "6722e77634dd1384842ab363", "dinner": "6722e77534dd1384842ab33a" },
+            { "day": 4, "breakfast": "6722e77634dd1384842ab35c", "lunch": "6722e77534dd1384842ab346", "dinner": "6722e77534dd1384842ab339" },
+            { "day": 5, "breakfast": "6722e77534dd1384842ab348", "lunch": "6722e77634dd1384842ab35d", "dinner": "6722e77734dd1384842ab36e" },
+            { "day": 6, "breakfast": "6722e77434dd1384842ab334", "lunch": "6722e77534dd1384842ab335", "dinner": "6722e77734dd1384842ab36d" },
+            { "day": 7, "breakfast": "6722e77534dd1384842ab337", "lunch": "6722e77534dd1384842ab345", "dinner": "6722e77634dd1384842ab35c" }
+        ],
+        "targetNutrition": { "calories": 2200, "protein": 140, "carbs": 260, "fat": 80 },
+        "description": "An alternative balanced 7-day meal plan with slightly higher calories."
     },
     {
-        "_id": "meal_plan_002",
-        "userID": "user_002",  # Reference to user creating this meal plan
-        "meals": ["6722e77534dd1384842ab336", "6722e77534dd1384842ab337"],  # Updated Meal IDs in the plan
-        "servingSizes": [{"mealID": "6722e77534dd1384842ab336", "servingSize": "2 cups"}, {"mealID": "6722e77534dd1384842ab337", "servingSize": "1 bowl"}],
-        "scheduledDates": ["2024-11-03", "2024-11-04"],  # Dates when meals are scheduled
-        "startDate": "2024-11-03",
-        "endDate": "2024-11-10",
-        "targetNutrition": {"calories": 2500, "protein": 200, "carbs": 150, "fat": 80},
-        "description": "Weekly meal plan for muscle gain."
+        "_id": "mealplan002",
+        "userID": "user002",
+        "meals": [
+            "6722e77534dd1384842ab33a", "6722e77534dd1384842ab345", "6722e77534dd1384842ab348",
+            "6722e77534dd1384842ab33c", "6722e77634dd1384842ab35b", "6722e77634dd1384842ab35d", 
+            "6722e77734dd1384842ab36d", "6722e77634dd1384842ab35c", "6722e77634dd1384842ab34d",
+            "6722e77434dd1384842ab334", "6722e77534dd1384842ab335", "6722e77534dd1384842ab346",
+            "6722e77534dd1384842ab339", "6722e77634dd1384842ab363", "6722e77634dd1384842ab351",
+            "6722e77534dd1384842ab34a", "6722e77734dd1384842ab36e", "6722e77634dd1384842ab364",
+            "6722e77534dd1384842ab336", "6722e77534dd1384842ab337", "6722e77534dd1384842ab338"
+        ],
+        "scheduledDates": [
+            { "day": 1, "breakfast": "6722e77434dd1384842ab334", "lunch": "6722e77534dd1384842ab346", "dinner": "6722e77634dd1384842ab35b" },
+            { "day": 2, "breakfast": "6722e77534dd1384842ab337", "lunch": "6722e77534dd1384842ab33c", "dinner": "6722e77534dd1384842ab34a" },
+            { "day": 3, "breakfast": "6722e77634dd1384842ab364", "lunch": "6722e77534dd1384842ab338", "dinner": "6722e77734dd1384842ab36d" },
+            { "day": 4, "breakfast": "6722e77534dd1384842ab336", "lunch": "6722e77634dd1384842ab363", "dinner": "6722e77634dd1384842ab35d" },
+            { "day": 5, "breakfast": "6722e77534dd1384842ab335", "lunch": "6722e77534dd1384842ab33a", "dinner": "6722e77734dd1384842ab36e" },
+            { "day": 6, "breakfast": "6722e77534dd1384842ab339", "lunch": "6722e77534dd1384842ab345", "dinner": "6722e77634dd1384842ab35c" },
+            { "day": 7, "breakfast": "6722e77634dd1384842ab34d", "lunch": "6722e77634dd1384842ab351", "dinner": "6722e77534dd1384842ab348" }
+        ],
+        "targetNutrition": { "calories": 1800, "protein": 120, "carbs": 200, "fat": 60 },
+        "description": "A lower-calorie meal plan with balanced macros over a week."
+    },
+    {
+        "_id": "mealplan003",
+        "userID": "user003",
+        "meals": [
+            "6722e77534dd1384842ab345", "6722e77534dd1384842ab34a", "6722e77534dd1384842ab346",
+            "6722e77434dd1384842ab334", "6722e77634dd1384842ab35d", "6722e77634dd1384842ab35b",
+            "6722e77634dd1384842ab35c", "6722e77534dd1384842ab337", "6722e77534dd1384842ab33c",
+            "6722e77734dd1384842ab36d", "6722e77734dd1384842ab36e", "6722e77534dd1384842ab339",
+            "6722e77634dd1384842ab364", "6722e77634dd1384842ab363", "6722e77534dd1384842ab335",
+            "6722e77634dd1384842ab34d", "6722e77534dd1384842ab33a", "6722e77534dd1384842ab348",
+            "6722e77534dd1384842ab336", "6722e77534dd1384842ab338", "6722e77634dd1384842ab351"
+        ],
+        "scheduledDates": [
+            { "day": 1, "breakfast": "6722e77534dd1384842ab345", "lunch": "6722e77634dd1384842ab35c", "dinner": "6722e77534dd1384842ab335" },
+            { "day": 2, "breakfast": "6722e77734dd1384842ab36d", "lunch": "6722e77534dd1384842ab339", "dinner": "6722e77634dd1384842ab364" },
+            { "day": 3, "breakfast": "6722e77534dd1384842ab33c", "lunch": "6722e77434dd1384842ab334", "dinner": "6722e77634dd1384842ab34d" },
+            { "day": 4, "breakfast": "6722e77634dd1384842ab35b", "lunch": "6722e77534dd1384842ab336", "dinner": "6722e77534dd1384842ab348" },
+            { "day": 5, "breakfast": "6722e77534dd1384842ab346", "lunch": "6722e77534dd1384842ab34a", "dinner": "6722e77634dd1384842ab35d" },
+            { "day": 6, "breakfast": "6722e77534dd1384842ab338", "lunch": "6722e77634dd1384842ab363", "dinner": "6722e77534dd1384842ab33a" },
+            { "day": 7, "breakfast": "6722e77534dd1384842ab337", "lunch": "6722e77734dd1384842ab36e", "dinner": "6722e77634dd1384842ab351" }
+        ],
+        "targetNutrition": { "calories": 2000, "protein": 130, "carbs": 230, "fat": 70 },
+        "description": "A moderate-calorie meal plan for balanced daily intake."
     }
 ]
 
