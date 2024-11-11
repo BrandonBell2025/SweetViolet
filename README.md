@@ -2,6 +2,8 @@
 
 By: Allen, Brandon, Howard, and Yongje
 
+Link to WireFrame: https://www.figma.com/design/835kS7BAVDMVakyTN0xZQi/Sweet-Violet-Wireframe?node-id=0-1&node-type=canvas&t=aDR6l3wzd28Z5Csh-0
+
 ## Overview
 
 **Sweet Violet** is a dynamic meal planning application designed to help users achieve their personal health and nutritional goals. The system dynamically adjusts meal plans based on user input, ensuring that daily nutritional targets are met. For example, if a user consumes a high-calorie meal (e.g., greasy chicken) that exceeds their daily calorie goal on day 2, the planner will automatically recommend lighter, healthier meals on day 3 to compensate and maintain balance over time.
