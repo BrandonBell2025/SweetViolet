@@ -26,19 +26,12 @@ def check_connection(client):
 user_schema = {
     "$jsonSchema": {
         "bsonType": "object",
-        "required": ["_id", "firstName", "lastName", "healthGoal", "calorieGoal", "proteinGoal", "carbsGoal", "age", "sex", "height", "weight"],
+        "required": ["firstName", "Username", "Email", "Password"],
         "properties": {
-            "_id": {"bsonType": "string"},
             "firstName": {"bsonType": "string"},
-            "lastName": {"bsonType": "string"},
-            "healthGoal": {"bsonType": "string"},
-            "calorieGoal": {"bsonType": "int"},
-            "proteinGoal": {"bsonType": "int"},
-            "carbsGoal": {"bsonType": "int"},
-            "age": {"bsonType": "int"},
-            "sex": {"bsonType": "string"},
-            "height": {"bsonType": "int"},
-            "weight": {"bsonType": "int"},
+            "Username": {"bsonType": "string"},
+            "Email": {"bsonType": "string"},
+            "Password": {"bsonType": "string"}
         }
     }
 }
@@ -177,8 +170,24 @@ def insert_meal_plans(meal_plans):
 
 # Sample data for users
 users_data = [
-    {"_id": "user_001", "firstName": "Yongje", "lastName": "Jeon", "healthGoal": "lose_weight", "calorieGoal": 2000, "proteinGoal": 150, "carbsGoal": 100, "age": 20, "sex": "Male", "height": 72, "weight": 160},
-    {"_id": "user_002", "firstName": "Allen", "lastName": "Feng", "healthGoal": "lose_weight", "calorieGoal": 2000, "proteinGoal": 150, "carbsGoal": 100, "age": 20, "sex": "Male", "height": 72, "weight": 160}
+  {
+    "firstName": "John",
+    "Username": "john_doe",
+    "Email": "john.doe@example.com",
+    "Password": "password123"
+  },
+  {
+    "firstName": "Jane",
+    "Username": "jane_smith",
+    "Email": "jane.smith@example.com",
+    "Password": "securePassword!"
+  },
+  {
+    "firstName": "Alice",
+    "Username": "alice_wonder",
+    "Email": "alice.wonder@example.com",
+    "Password": "alicePass2024"
+  }
 ]
 
 meal_plans_data = [
@@ -258,8 +267,8 @@ meal_plans_data = [
 
 # Run the functions to create collections and insert sample data
 create_collections()
-#insert_users(users_data)
-insert_meal_plans(meal_plans_data)
+insert_users(users_data)
+#insert_meal_plans(meal_plans_data)
 
 # Check MongoDB connection
 check_connection(client)

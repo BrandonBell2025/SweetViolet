@@ -97,38 +97,217 @@ To set up and run the **Trader Joe’s API**, follow these steps:
 
 2. **Run the API**
 
-   Use the following command to run the API with Uvicorn:
+   Navigate into API folder
    ```bash
-   uvicorn api:app --reload
+   cd API
+   ```
+
+   Run api.py file to start the server on your local device
+   ```bash
+   python api.py 
    ```
 
 ## Testing the API
 
-You can test the API with the following endpoints via Postman or a web browser:
+You can test the API with the following endpoints using tools like Postman or a web browser.
 
-- **GET All Items**: 
-  - Description: Retrieves a list of all items stored in the database.
-  - Endpoint: `http://127.0.0.1:8000/items/`
-  - **Response:** Returns a list of items, each with an `_id`, `title`, `price`, `sku`, `description`, and `tags`.
+### Item Endpoints (Trader Joes Items)
 
-- **GET Single Item by ID**: 
-  - Description: Retrieves a specific item based on its ID.
-  - Endpoint: `http://127.0.0.1:8000/items/{item_id}`
-  - **Response:** Returns an item with the specified `item_id`, along with its properties such as `title`, `price`, `sku`, `description`, and `tags`.
+- **GET All Items**
 
-- **POST New Item**: 
-  - Description: Adds a new item to the database.
-  - Endpoint: `http://127.0.0.1:8000/items/`
-  - **Request Body:** JSON object containing `title`, `price`, `sku`, `description`, and `tags`.
-  - **Response:** Returns the created item with an `_id` and all provided properties.
+  Endpoint: `http://127.0.0.1:8000/items/`
 
-- **PUT Update Item by ID**: 
-  - Description: Updates an existing item based on its ID.
-  - Endpoint: `http://127.0.0.1:8000/items/{item_id}`
-  - **Request Body:** JSON object containing updated properties like `title`, `price`, `sku`, `description`, and `tags`.
-  - **Response:** Returns the updated item with its `_id` and updated properties.
+  - **Description**: Retrieves a list of all items stored in the database.
+  - **Response**: Returns a list of items, each containing fields like `_id`, `item_title`, `sku`, `storeCode`, `sales_size`, `sales_uom_description`, `retail_price`, `fun_tags`, `item_characteristics`, `category_1`, and `category_2`.
 
-- **DELETE Item by ID**: 
-  - Description: Deletes a specific item from the database based on its ID.
-  - Endpoint: `http://127.0.0.1:8000/items/{item_id}`
-  - **Response:** Returns a confirmation message indicating the item has been deleted.
+- **GET Single Item by ID**
+
+  Endpoint: `http://127.0.0.1:8000/items/{item_id}`
+
+  - **Description**: Retrieves a specific item by its unique ID.
+  - **Response**: Returns the item details if the ID is valid, or an error message if the item is not found.
+
+- **POST a New Item**
+
+  Endpoint: `http://127.0.0.1:8000/items/`
+
+  - **Description**: Creates a new item in the database.
+  - **Body**:
+    ```json
+    {
+      "item_title": "Example Item",
+      "sku": 12345,
+      "storeCode": [100, 200],
+      "sales_size": 1.5,
+      "sales_uom_description": "Lbs",
+      "retail_price": 4.99,
+      "fun_tags": ["organic", "gluten-free"],
+      "item_characteristics": ["refrigerated"],
+      "category_1": "Produce",
+      "category_2": "Vegetables"
+    }
+    ```
+  - **Response**: Returns the `inserted_id` of the newly created item.
+
+- **PUT Update an Existing Item by ID**
+
+  Endpoint: `http://127.0.0.1:8000/items/{item_id}`
+
+  - **Description**: Updates an item with new data.
+  - **Body**: Same structure as the `POST` body.
+  - **Response**: Returns a success message if the item was updated or an error message if the item was not found.
+
+- **DELETE an Item by ID**
+
+  Endpoint: `http://127.0.0.1:8000/items/{item_id}`
+
+  - **Description**: Deletes a specific item by its ID.
+  - **Response**: Returns a success message if the item was deleted or an error message if the item was not found.
+
+### Recipe Endpoints
+
+- **GET All Recipes**
+
+  Endpoint: `http://127.0.0.1:8000/recipes/`
+
+  - **Description**: Retrieves a list of all recipes stored in the database.
+  - **Response**: Returns a list of recipes with each recipe containing fields like `_id`, `Recipe_Name`, `calories`, `cuisine_type`, `meal_type`, `diet_labels`, `ingredients`, and `nutrients`.
+
+- **GET Single Recipe by ID**
+
+  Endpoint: `http://127.0.0.1:8000/recipes/{recipe_id}`
+
+  - **Description**: Retrieves a specific recipe by its unique ID.
+  - **Response**: Returns the recipe details if found or an error message if the recipe is not found.
+
+- **POST a New Recipe**
+
+  Endpoint: `http://127.0.0.1:8000/recipes/`
+
+  - **Description**: Creates a new recipe in the database.
+  - **Body**:
+    ```json
+    {
+      "Recipe_Name": "Healthy Salad",
+      "calories": 250,
+      "cuisine_type": "American",
+      "meal_type": "Lunch",
+      "diet_labels": ["vegan", "gluten-free"],
+      "ingredients": ["lettuce", "tomato", "cucumber"],
+      "nutrients": {"fiber": 5, "protein": 3}
+    }
+    ```
+  - **Response**: Returns the `inserted_id` of the newly created recipe.
+
+- **PUT Update an Existing Recipe by ID**
+
+  Endpoint: `http://127.0.0.1:8000/recipes/{recipe_id}`
+
+  - **Description**: Updates an existing recipe with new data.
+  - **Body**: Same structure as the `POST` body.
+  - **Response**: Returns a success message if the recipe was updated or an error message if not found.
+
+- **DELETE a Recipe by ID**
+
+  Endpoint: `http://127.0.0.1:8000/recipes/{recipe_id}`
+
+  - **Description**: Deletes a specific recipe by its ID.
+  - **Response**: Returns a success message if deleted or an error if not found.
+
+### User Endpoints
+
+- **GET All Users**
+
+  Endpoint: `http://127.0.0.1:8000/users/`
+
+  - **Description**: Retrieves a list of all users in the database.
+  - **Response**: Returns a list of users, each containing fields like `_id`, `firstName`, `lastName`, `healthGoal`, `calorieGoal`, `proteinGoal`, `carbsGoal`, `age`, `sex`, `height`, and `weight`.
+
+- **GET Single User by ID**
+
+  Endpoint: `http://127.0.0.1:8000/users/{user_id}`
+
+  - **Description**: Retrieves a specific user by ID.
+  - **Response**: Returns user details if found or an error if not found.
+
+- **POST a New User**
+
+  Endpoint: `http://127.0.0.1:8000/users/`
+
+  - **Description**: Creates a new user in the database.
+  - **Body**:
+    ```json
+    {
+      "firstName": "Test",
+      "Username": "Test_01",
+      "Email": "test.test@test.com",
+      "Password": "password123"
+    }
+    ```
+  - **Response**: Returns the `inserted_id` of the new user.
+
+- **PUT Update an Existing User by ID**
+
+  Endpoint: `http://127.0.0.1:8000/users/{user_id}`
+
+  - **Description**: Updates an existing user’s data.
+  - **Body**: Same structure as the `POST` body.
+  - **Response**: Returns a success message if updated or error if not found.
+
+- **DELETE a User by ID**
+
+  Endpoint: `http://127.0.0.1:8000/users/{user_id}`
+
+  - **Description**: Deletes a specific user by ID.
+  - **Response**: Returns success if deleted or error if not found.
+
+### Meal Plan Endpoints
+
+- **GET All Meal Plans**
+
+  Endpoint: `http://127.0.0.1:8000/meal_plans/`
+
+  - **Description**: Retrieves all meal plans.
+  - **Response**: Returns a list of meal plans, each containing fields like `_id`, `userID`, `meals`, `servingSizes`, `scheduledDates`, `startDate`, `endDate`, `targetNutrition`, and `description`.
+
+- **GET Single Meal Plan by ID**
+
+  Endpoint: `http://127.0.0.1:8000/meal_plans/{meal_plan_id}`
+
+  - **Description**: Retrieves a specific meal plan by ID.
+  - **Response**: Returns meal plan details if found or error if not found.
+
+- **POST a New Meal Plan**
+
+  Endpoint: `http://127.0.0.1:8000/meal_plans/`
+
+  - **Description**: Creates a new meal plan.
+  - **Body**:
+    ```json
+    {
+      "userID": "123456",
+      "meals": ["Breakfast", "Lunch", "Dinner"],
+      "servingSizes": [1, 1, 1],
+      "scheduledDates": ["2024-10-01", "2024-10-02"],
+      "startDate": "2024-10-01",
+      "endDate": "2024-10-07",
+      "targetNutrition": {"calories": 2000, "protein": 150},
+      "description": "Weekly meal plan"
+    }
+    ```
+  - **Response**: Returns the `inserted_id` of the new meal plan.
+
+- **PUT Update an Existing Meal Plan by ID**
+
+  Endpoint: `http://127.0.0.1:8000/meal_plans/{meal_plan_id}`
+
+  - **Description**: Updates an existing meal plan.
+  - **Body**: Same structure as the `POST` body.
+  - **Response**: Returns success if updated or error if not found.
+
+- **DELETE a Meal Plan by ID**
+
+  Endpoint: `http://127.0.0.1:8000/meal_plans/{meal_plan_id}`
+
+  - **Description**: Deletes a specific meal plan by ID.
+  - **Response**: Returns success if deleted or error if not found.

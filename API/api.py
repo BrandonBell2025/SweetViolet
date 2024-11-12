@@ -71,15 +71,9 @@ class MealPlan(BaseModel):
 
 class User(BaseModel):
     firstName: str
-    lastName: str
-    healthGoal: str
-    calorieGoal: int
-    proteinGoal: int
-    carbsGoal: int
-    age: int
-    sex: str
-    height: int
-    weight: int
+    Username: str
+    Email: str
+    Password: str
 
 # User endpoints
 # GET all users
