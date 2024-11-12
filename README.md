@@ -285,14 +285,29 @@ You can test the API with the following endpoints using tools like Postman or a 
   - **Body**:
     ```json
     {
-      "userID": "123456",
-      "meals": ["Breakfast", "Lunch", "Dinner"],
-      "servingSizes": [1, 1, 1],
-      "scheduledDates": ["2024-10-01", "2024-10-02"],
-      "startDate": "2024-10-01",
-      "endDate": "2024-10-07",
-      "targetNutrition": {"calories": 2000, "protein": 150},
-      "description": "Weekly meal plan"
+      "userID": "user001",
+      "meals": [
+        "breakfast_001", "lunch_001", "dinner_001", "breakfast_002", "lunch_002", "dinner_002",
+        "breakfast_003", "lunch_003", "dinner_003", "breakfast_004", "lunch_004", "dinner_004",
+        "breakfast_005", "lunch_005", "dinner_005", "breakfast_006", "lunch_006", "dinner_006",
+        "breakfast_007", "lunch_007"
+      ],
+      "scheduledDates": [
+        { "day": 1, "breakfast": "breakfast_001", "lunch": "lunch_001", "dinner": "dinner_001" },
+        { "day": 2, "breakfast": "breakfast_002", "lunch": "lunch_002", "dinner": "dinner_002" },
+        { "day": 3, "breakfast": "breakfast_003", "lunch": "lunch_003", "dinner": "dinner_003" },
+        { "day": 4, "breakfast": "breakfast_004", "lunch": "lunch_004", "dinner": "dinner_004" },
+        { "day": 5, "breakfast": "breakfast_005", "lunch": "lunch_005", "dinner": "dinner_005" },
+        { "day": 6, "breakfast": "breakfast_006", "lunch": "lunch_006", "dinner": "dinner_006" },
+        { "day": 7, "breakfast": "breakfast_007", "lunch": "lunch_007", "dinner": "dinner_007" }
+      ],
+      "targetNutrition": { 
+        "calories": 2200, 
+        "protein": 120, 
+        "carbs": 250, 
+        "fat": 80 
+      },
+      "description": "A balanced 7-day meal plan with moderate protein and healthy fats."
     }
     ```
   - **Response**: Returns the `inserted_id` of the new meal plan.

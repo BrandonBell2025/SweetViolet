@@ -62,11 +62,8 @@ class Edamam(BaseModel):
 class MealPlan(BaseModel):
     userID: str
     meals: list
-    servingSizes: list
     scheduledDates: list
-    startDate: str
-    endDate: str
-    targetNutrition: dict
+    targetNutrition: dict[str, int]
     description: str
 
 class User(BaseModel):

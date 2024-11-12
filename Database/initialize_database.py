@@ -99,9 +99,8 @@ recipes_schema = {
 meal_plan_schema = {
     "$jsonSchema": {
         "bsonType": "object",
-        "required": ["_id", "userID", "meals", "scheduledDates", "targetNutrition"],
+        "required": ["userID", "meals", "scheduledDates", "targetNutrition"],
         "properties": {
-            "_id": {"bsonType": "string"},
             "userID": {"bsonType": "string"},
             "meals": {
                 "bsonType": "array",
@@ -192,7 +191,6 @@ users_data = [
 
 meal_plans_data = [
     {
-        "_id": "mealplan001",
         "userID": "user001",
         "meals": [
             "6722e77434dd1384842ab334", "6722e77534dd1384842ab335", "6722e77534dd1384842ab336",
@@ -216,7 +214,6 @@ meal_plans_data = [
         "description": "An alternative balanced 7-day meal plan with slightly higher calories."
     },
     {
-        "_id": "mealplan002",
         "userID": "user002",
         "meals": [
             "6722e77534dd1384842ab33a", "6722e77534dd1384842ab345", "6722e77534dd1384842ab348",
@@ -240,7 +237,6 @@ meal_plans_data = [
         "description": "A lower-calorie meal plan with balanced macros over a week."
     },
     {
-        "_id": "mealplan003",
         "userID": "user003",
         "meals": [
             "6722e77534dd1384842ab345", "6722e77534dd1384842ab34a", "6722e77534dd1384842ab346",
@@ -268,7 +264,7 @@ meal_plans_data = [
 # Run the functions to create collections and insert sample data
 create_collections()
 insert_users(users_data)
-#insert_meal_plans(meal_plans_data)
+insert_meal_plans(meal_plans_data)
 
 # Check MongoDB connection
 check_connection(client)
