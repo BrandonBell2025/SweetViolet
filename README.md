@@ -8,24 +8,67 @@ By: Allen, Brandon, Howard, and Yongje
 
 The application uses MongoDB to manage user profiles, meal details, tags for categorization, and meal plans. This flexible database structure allows for easy updates and adaptation to evolving nutritional goals and preferences.
 
-## Data Model
+### Data Model
 
-Our database is organized into five key collections:
+This project uses MongoDB with the following collections and schemas to manage and store data:
 
-1. **Users Collection**: Stores information about users, including their personal details, health goals, and dietary preferences.
-    - Fields: `_id`, `firstName`, `lastName`, `healthGoal`, `calorieGoal`, `proteinGoal`, `carbsGoal`, `age`, `sex`, `height`, `weight`.
+#### 1. Users_Collection
+This collection stores user data with schema validation to ensure data integrity.
 
-2. **Meals Collection**: Stores detailed information about meals, including nutritional content, meal time, and associated tags.
-    - Fields: `mealID`, `mealName`, `description`, `userID`, `mealTime`, `date`, `nutrition (calories, protein, carbs, fat)`, `tags`.
+- **Schema:**
+    - `firstName` (string): The user's first name.
+    - `Username` (string): The user's unique username.
+    - `Email` (string): The user's email address.
+    - `Password` (string): The user's password.
 
-3. **Tags Collection**: Stores tags to categorize meals based on attributes like "High Protein", "Low Carb", etc.
-    - Fields: `tagID`, `name`, `description`.
+#### 2. Recipes
+Stores information about recipes, including nutritional details and ingredients, which is sourced from Edamam.
 
-4. **Meal Plans Collection**: Stores information about meal plans, which include scheduled meals and their serving sizes over a specific time period.
-    - Fields: `mealplanID`, `userID`, `meals`, `servingSizes`, `scheduledDates`, `startDate`, `endDate`, `targetNutrition (calories, protein, carbs, fat)`.
+- **Schema:**
+    - `_id` (string): Unique identifier for the recipe.
+    - `Recipe_Name` (string): The name of the recipe.
+    - `calories` (double or null): The calorie count of the recipe.
+    - `cuisine_type` (string): Type of cuisine for the recipe.
+    - `meal_type` (string): Meal type (e.g., breakfast, lunch, dinner).
+    - `diet_labels` (array of strings): Dietary labels for the recipe (e.g., vegan, gluten-free).
+    - `ingredients` (array of objects): Ingredients list, each with:
+        - `name` (string): Ingredient name.
+        - `quantity` (string): Quantity of the ingredient.
+        - `unit` (string): Measurement unit for the ingredient.
+    - `nutrients` (object): Nutritional information, with properties like `ENERC_KCAL` (calories), `FAT`, `SUGAR`, etc., each as a double.
 
-5. **Trader Joe's Items Collection**: Stores item information from Trader Joe's, enabling users to incorporate specific products into their meal planning and grocery list.
-    - Fields: `item-title`, `sku`, `sales_size`, `retail_price`, `storeCode`
+#### 3. MealPlan_Collection
+Contains user-specific meal plans with scheduled meals and nutritional targets.
+
+- **Schema:**
+    - `userID` (string): Reference to the user for whom the meal plan is created.
+    - `meals` (array of strings): List of meal IDs included in the plan.
+    - `scheduledDates` (array of objects): Schedule for each day, with each entry containing:
+        - `day` (int): Day number (e.g., 1 for Day 1).
+        - `breakfast` (string): Meal ID for breakfast (optional).
+        - `lunch` (string): Meal ID for lunch (optional).
+        - `dinner` (string): Meal ID for dinner (optional).
+    - `targetNutrition` (object): Target daily nutritional goals, with:
+        - `calories` (int): Target calories.
+        - `protein` (int): Target protein intake in grams.
+        - `carbs` (int): Target carbohydrates intake in grams.
+        - `fat` (int): Target fat intake in grams.
+    - `description` (string): Description of the meal plan.
+#### 4. Trader_Joes_Items_Collection
+This collection holds data on Trader Joe's items, including product details, pricing, and categorization.
+
+- **Schema:**
+    - `item_title` (string): Name of the product.
+    - `sku` (int): Stock Keeping Unit, unique identifier for the item.
+    - `storeCode` (array of ints): List of store codes where the item is available.
+    - `sales_size` (double): Size or quantity of the product available for sale.
+    - `sales_uom_description` (string): Unit of measurement description for the sales size (e.g., "oz", "g").
+    - `retail_price` (double): Retail price of the product.
+    - `fun_tags` (array of strings): Descriptive tags for the product (e.g., "organic", "vegan").
+    - `item_characteristics` (array of strings): Attributes of the product (e.g., "gluten-free", "non-GMO").
+    - `category_1` (string): Primary category of the item (e.g., "Snacks").
+    - `category_2` (string): Secondary category of the item (e.g., "Chips").
+
 
 ## Data Model Rationale
 We chose **MongoDB** for our project because of the flexibility it offers in handling semi-structured and evolving data. Our application requires the ability to store varying nutritional information and user-specific data, which may change or expand over time. Most foods do not have every source of nutrition in it, which may result in NULL data in some fields. Thus, MongoDB's NoSQL data suits our needs.
