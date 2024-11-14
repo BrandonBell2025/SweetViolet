@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 import uvicorn
 from pydantic import BaseModel
 from pymongo import MongoClient
@@ -7,6 +7,9 @@ import os
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
 import random
+import requests
+from openai import OpenAI
+import json
 
 
 # Load environment variables from .env file
@@ -315,53 +318,95 @@ async def delete_meal_plan(meal_plan_id: str):
     except Exception as e:
         raise HTTPException(status_code=400, detail="Invalid meal plan ID")
 
-#SPECIALIZED ENDPOINTs FOR AI FUNCTION
-#Get 80 random recipes based on multiple filters
+#AI ENDPOINTS
+#Using OPENAI to generate meal plan
 @app.get("/recipes/random/")
 async def get_random_recipes(
-        calories: float = None,
-        cuisine_type: str = None,
-        meal_type: str = None,
-        diet_label: str = None,
-        limit: int = 80  # Maximum number of recipes to return
+    calories: float = None,
+    cuisine_type: str = None,
+    meal_type: str = None,
+    diet_label: str = None,
+    limit: int = 80
 ):
-
-    query = {
-        "Recipe_Name": {"$ne": ""}  
-    }
+    # Base query to exclude recipes with an empty Recipe_Name
+    query = {"Recipe_Name": {"$ne": ""}}
 
     # Apply additional filters if specified
     if calories is not None:
-        query["calories"] = {"$lte": calories}  
+        query["calories"] = {"$lte": calories}
     if cuisine_type:
-        query["cuisine_type"] = cuisine_type 
+        query["cuisine_type"] = cuisine_type
     if meal_type:
-        query["meal_type"] = meal_type  
+        query["meal_type"] = meal_type
     if diet_label:
-        query["diet_labels"] = diet_label 
+        query["diet_labels"] = diet_label
 
-    pipeline = [
-        {"$match": query},  
-        {"$sample": {"size": limit}}, 
-    ]
-
+    # Aggregation pipeline for filtering and sampling
+    pipeline = [{"$match": query}, {"$sample": {"size": limit}}]
     recipes = list(recipes_collection.aggregate(pipeline))
 
-    # If the filtered result count is less than the limit, fill with additional random recipes
+    # Fill with additional random recipes if needed
     if len(recipes) < limit:
         additional_needed = limit - len(recipes)
-       
         additional_pipeline = [
-            {"$match": {"Recipe_Name": {"$ne": ""}}},  
+            {"$match": {"Recipe_Name": {"$ne": ""}}},
             {"$sample": {"size": additional_needed}}
         ]
         additional_recipes = list(recipes_collection.aggregate(additional_pipeline))
-        recipes.extend(additional_recipes)  
+        recipes.extend(additional_recipes)
 
-    for recipe in recipes:
-        recipe["_id"] = str(recipe["_id"])
+    # Simplify the recipe data
+    def simplify_meal_data(meal_data):
+        return {
+            "Recipe_Name": meal_data["Recipe_Name"],
+            "calories": meal_data["calories"],
+            "nutrients": {
+                "calories": meal_data["nutrients"].get("ENERC_KCAL", 0),
+                "protein": meal_data["nutrients"].get("PROCNT", 0),
+                "carbohydrates": meal_data["nutrients"].get("CHOCDF", 0),
+                "fat": meal_data["nutrients"].get("FAT", 0),
+                "fiber": meal_data["nutrients"].get("FIBTG", 0),
+                "sugar": meal_data["nutrients"].get("SUGAR", 0),
+                "sodium": meal_data["nutrients"].get("NA", 0)
+            }
+        }
 
-    return recipes
+    simplified_recipes = [simplify_meal_data(recipe) for recipe in recipes]
+
+    # User preferences for GPT-4 #GUYS THIS NEEDS TO BE CONNECTED TO THE FRONTEND LATER
+    goal = "bulking"
+    cuisine = "italian food"
+    allergens = "nothing"
+
+    # GPT-4 request to create meal plan
+    openai_client = OpenAI(api_key="our_api_key")
+    try:
+        response = openai_client.chat.completions.create(
+            messages=[
+                {"role": "system",
+                 "content": f"You will receive 80 recipes. Construct a one-week meal plan based on those recipes and the user's preferences. The user prefers {cuisine} and plans to {goal}. The user is allergic to {allergens}. Only output the exact same recipe names provided to you. Output in the following format: day1:breakfast/name1/lunch/name2/dinner/name3,day2:..."},
+                {"role": "user", "content": str(simplified_recipes)}
+            ],
+            model="gpt-4"
+        )
+        answer = response.choices[0].message.content
+    except Exception as e:
+        raise HTTPException(status_code=500, detail="Error with GPT request")
+
+    # Parse GPT output into a dictionary
+    meal_plan = {}
+    for day in answer.split(","):
+        day_parts = day.split(":")
+        day_name = day_parts[0]
+        meals = day_parts[1].split("/")
+
+        meal_plan[day_name] = {
+            "breakfast": meals[1] if len(meals) > 1 else "N/A",
+            "lunch": meals[3] if len(meals) > 3 else "N/A",
+            "dinner": meals[5] if len(meals) > 5 else "N/A"
+        }
+
+    return meal_plan
 
 if __name__ == "__main__":
     uvicorn.run("api:app", host="0.0.0.0", port=8000, reload=True)
