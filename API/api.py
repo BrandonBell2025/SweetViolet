@@ -201,6 +201,15 @@ async def get_recipe(recipe_id: str):
     except Exception as e:
         raise HTTPException(status_code=400, detail="Invalid recipe ID")
 
+# GET recipe by recipe name
+@app.get("/recipes/search/")
+async def get_recipe_by_name(recipe_name: str = Query(..., description="Name of the recipe to search for")):
+    recipe = recipes_collection.find_one({"Recipe_Name": recipe_name})
+    if recipe:
+        recipe["_id"] = str(recipe["_id"])  # Convert ObjectId to string for JSON compatibility
+        return recipe
+    raise HTTPException(status_code=404, detail="Recipe not found")
+
 #Get list of recipes based on certain filters 
 @app.get("/recipes/filter/")
 async def get_filtered_recipes(calories: float = None, cuisine_type: str = None, meal_type: str = None, diet_label: str = None):
@@ -305,6 +314,54 @@ async def delete_meal_plan(meal_plan_id: str):
             raise HTTPException(status_code=404, detail="Meal Plan not found")
     except Exception as e:
         raise HTTPException(status_code=400, detail="Invalid meal plan ID")
+
+#SPECIALIZED ENDPOINTs FOR AI FUNCTION
+#Get 80 random recipes based on multiple filters
+@app.get("/recipes/random/")
+async def get_random_recipes(
+        calories: float = None,
+        cuisine_type: str = None,
+        meal_type: str = None,
+        diet_label: str = None,
+        limit: int = 80  # Maximum number of recipes to return
+):
+
+    query = {
+        "Recipe_Name": {"$ne": ""}  
+    }
+
+    # Apply additional filters if specified
+    if calories is not None:
+        query["calories"] = {"$lte": calories}  
+    if cuisine_type:
+        query["cuisine_type"] = cuisine_type 
+    if meal_type:
+        query["meal_type"] = meal_type  
+    if diet_label:
+        query["diet_labels"] = diet_label 
+
+    pipeline = [
+        {"$match": query},  
+        {"$sample": {"size": limit}}, 
+    ]
+
+    recipes = list(recipes_collection.aggregate(pipeline))
+
+    # If the filtered result count is less than the limit, fill with additional random recipes
+    if len(recipes) < limit:
+        additional_needed = limit - len(recipes)
+       
+        additional_pipeline = [
+            {"$match": {"Recipe_Name": {"$ne": ""}}},  
+            {"$sample": {"size": additional_needed}}
+        ]
+        additional_recipes = list(recipes_collection.aggregate(additional_pipeline))
+        recipes.extend(additional_recipes)  
+
+    for recipe in recipes:
+        recipe["_id"] = str(recipe["_id"])
+
+    return recipes
 
 if __name__ == "__main__":
     uvicorn.run("api:app", host="0.0.0.0", port=8000, reload=True)
