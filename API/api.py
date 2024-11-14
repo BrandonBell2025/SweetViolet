@@ -201,6 +201,25 @@ async def get_recipe(recipe_id: str):
     except Exception as e:
         raise HTTPException(status_code=400, detail="Invalid recipe ID")
 
+#Get list of recipes based on certain filters
+@app.get("/recipes/filter/")
+async def get_filtered_recipes(calories: float = None, cuisine_type: str = None, meal_type: str = None, diet_label: str = None):
+    query = {}
+    if calories is not None:
+        query["calories"] = {"$lte": calories}  
+    if cuisine_type:
+        query["cuisine_type"] = cuisine_type  
+    if meal_type:
+        query["meal_type"] = meal_type  
+    if diet_label:
+        query["diet_labels"] = diet_label  
+
+    recipes = []
+    for recipe in recipes_collection.find(query):
+        recipe["_id"] = str(recipe["_id"])
+        recipes.append(recipe)
+    return recipes
+
 # POST a new recipe
 @app.post("/recipes/")
 async def create_recipe(recipe: Edamam):
