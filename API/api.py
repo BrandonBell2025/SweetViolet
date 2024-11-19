@@ -327,7 +327,7 @@ async def get_random_recipes(
     cuisine_type: str = None,
     meal_type: str = None,
     diet_label: str = None,
-    limit: int = 70
+    limit: int = 60
 ):
     # Base query to exclude recipes with an empty Recipe_Name
     query = {"Recipe_Name": {"$ne": ""}}
@@ -380,28 +380,34 @@ async def get_random_recipes(
     cuisine = "italian food"
     allergens = "nothing"
 
-    # GPT-4 request to create meal plan
-<<<<<<< HEAD
-    openai_client = OpenAI(api_key="Our API key")
-=======
-    openai_client = OpenAI(api_key="OPENAI_KEY")
->>>>>>> 7ac32fd (.env for open AI key)
-    try:
-        response = openai_client.chat.completions.create(
-            messages=[
-                {"role": "system",
-                 "content": f"You will receive 80 recipes. Construct a one-week meal plan based on those recipes and the user's preferences. The user prefers {cuisine} and plans to {goal}. The user is allergic to {allergens}. Only output the exact same recipe _id s provided to you. Output in the following format: day1:breakfast/id1/lunch/id2/dinner/id3,day2:..."},
-                {"role": "user", "content": str(simplified_recipes)}
-            ],
-            model="gpt-4"
-        )
-        answer = response.choices[0].message.content
-    except Exception as e:
-        raise HTTPException(status_code=500, detail="Error with GPT request")
+    api_key = os.getenv("OPENAI_KEY")
+    client = OpenAI(api_key=api_key)
+    print(OPENAI_KEY)
 
-    # Parse GPT output into a dictionary
+
+    prompt = (
+        f"You will receive 80 recipes. Construct a one-week meal plan based on those recipes and the user's preferences. The user prefers {cuisine} and plans to {goal}. The user is allergic to {allergens}. Only output the exact same recipe _id s provided to you. Output in the following format: day1:breakfast/id1/lunch/id2/dinner/id3,day2:..."
+        f"Here are the recipees{simplified_recipes}"
+    )
+
+    # Create a response using the GPT-4o mini model
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=1,
+        max_tokens=4000,
+        top_p=1,
+        frequency_penalty=0,
+        presence_penalty=0
+    )
+
+    # Convert the response to a dictionary and extract the content
+    response_dict = response.model_dump()
+    response_message = response_dict["choices"][0]["message"]["content"].strip()
+    print(response_message)
     meal_plan = {}
-    for day in answer.split(","):
+    
+    for day in response_message.split(","):
         day_parts = day.split(":")
         day_name = day_parts[0]
         meals = day_parts[1].split("/")
@@ -413,8 +419,6 @@ async def get_random_recipes(
         }
 
     return meal_plan
-
-
 
 if __name__ == "__main__":
     uvicorn.run("api:app", host="0.0.0.0", port=8000, reload=True)
