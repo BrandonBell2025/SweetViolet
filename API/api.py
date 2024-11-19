@@ -17,6 +17,7 @@ load_dotenv()
 
 # Connect to MongoDB
 mongodb_uri = os.getenv("MONGODB_URI")
+OPENAI_KEY = os.getenv("OPENAI_KEY")
 client = MongoClient(mongodb_uri)
 db = client["Sweet_Violet"]
 items_collection = db["Trader_Joes_Items"]
@@ -380,7 +381,11 @@ async def get_random_recipes(
     allergens = "nothing"
 
     # GPT-4 request to create meal plan
+<<<<<<< HEAD
     openai_client = OpenAI(api_key="Our API key")
+=======
+    openai_client = OpenAI(api_key="OPENAI_KEY")
+>>>>>>> 7ac32fd (.env for open AI key)
     try:
         response = openai_client.chat.completions.create(
             messages=[
