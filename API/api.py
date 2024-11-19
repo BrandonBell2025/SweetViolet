@@ -326,7 +326,7 @@ async def get_random_recipes(
     cuisine_type: str = None,
     meal_type: str = None,
     diet_label: str = None,
-    limit: int = 80
+    limit: int = 70
 ):
     # Base query to exclude recipes with an empty Recipe_Name
     query = {"Recipe_Name": {"$ne": ""}}
@@ -358,6 +358,7 @@ async def get_random_recipes(
     # Simplify the recipe data
     def simplify_meal_data(meal_data):
         return {
+            "_id": meal_data["_id"],
             "Recipe_Name": meal_data["Recipe_Name"],
             "calories": meal_data["calories"],
             "nutrients": {
@@ -379,12 +380,12 @@ async def get_random_recipes(
     allergens = "nothing"
 
     # GPT-4 request to create meal plan
-    openai_client = OpenAI(api_key="our_api_key")
+    openai_client = OpenAI(api_key="Our API key")
     try:
         response = openai_client.chat.completions.create(
             messages=[
                 {"role": "system",
-                 "content": f"You will receive 80 recipes. Construct a one-week meal plan based on those recipes and the user's preferences. The user prefers {cuisine} and plans to {goal}. The user is allergic to {allergens}. Only output the exact same recipe names provided to you. Output in the following format: day1:breakfast/name1/lunch/name2/dinner/name3,day2:..."},
+                 "content": f"You will receive 80 recipes. Construct a one-week meal plan based on those recipes and the user's preferences. The user prefers {cuisine} and plans to {goal}. The user is allergic to {allergens}. Only output the exact same recipe _id s provided to you. Output in the following format: day1:breakfast/id1/lunch/id2/dinner/id3,day2:..."},
                 {"role": "user", "content": str(simplified_recipes)}
             ],
             model="gpt-4"
@@ -407,6 +408,8 @@ async def get_random_recipes(
         }
 
     return meal_plan
+
+
 
 if __name__ == "__main__":
     uvicorn.run("api:app", host="0.0.0.0", port=8000, reload=True)
