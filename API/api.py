@@ -38,11 +38,12 @@ origins = [
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,  # Allow specific origins
+    allow_origins=["*"],  # Allow all origins for testing
     allow_credentials=True,
     allow_methods=["*"],  # Allow all HTTP methods
     allow_headers=["*"],  # Allow all headers
 )
+
 
 # Pydantic models to ensure proper data validation
 class Item(BaseModel):
@@ -384,7 +385,7 @@ async def get_random_recipes(
         f"You will receive 80 recipes. Construct a one-week meal plan based on those recipes and the user's preferences."
         f"I want you to generate these meals each day: {preferences['selectedMeals']}"
         f"User wants to {preferences['selectedGoal']}, likes {preferences['preferredCuisine']} & {preferences['dietaryRestriction']} food, excercise level: {preferences['activityLevel']} and wants to {preferences['Goals']}."
-        "Output in the following object format, do not deviate or leave comments in the response: {meals: [all meal ids used in meal plan], scheduledDates:[{'day': '1', 'breakfast': 'id1', 'lunch':'id2', 'dinner': 'id3'}, {'day2':...], targetNutrition: {'calories': value, 'protein': value, 'carbs': value, 'fat': value} }"
+        "Output in the following json format, do not deviate or leave comments in the response: {meals: [all meal ids used in meal plan], scheduledDates:[{'day': '1', 'breakfast': 'id1', 'lunch':'id2', 'dinner': 'id3'}, {'day2':...], targetNutrition: {'calories': value, 'protein': value, 'carbs': value, 'fat': value} }"
         f"Here are the recipes{simplified_recipes}"
         "Make sure that every id you recommend to me can be found in recipes I am sending you. Do not make up any, if there are no recipes that fit the above preferences select a random one from the provided list" 
     )
@@ -403,6 +404,7 @@ async def get_random_recipes(
     # Convert the response to a dictionary and extract the content
     response_dict = response.model_dump()
     response_message = response_dict["choices"][0]["message"]["content"].strip('json').strip('')
+    print(response_message)
 
     match = re.search(r"```json\n(.*?)\n```", response_message, re.DOTALL)
 
@@ -415,7 +417,7 @@ async def get_random_recipes(
         except json.JSONDecodeError:
             return JSONResponse(content={"error": "Invalid JSON content"}, status_code=400)
     else:
-        print(response_message)
+        print("looks like it was in json:",response_message)
         json_object = json.loads(response_message)
         return JSONResponse(content=json_object)
 
