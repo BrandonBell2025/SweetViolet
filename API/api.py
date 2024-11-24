@@ -431,12 +431,12 @@ async def generate_general_explanation(data: dict):
 
     # Construct the OpenAI prompt
     prompt = f"""
-    Previously, you have generated the following meal plan to help a user '{selected_emotion_goal}' and their current mood is '{selected_mood}'.
+    Previously, you have generated the following meal plan to help me '{selected_emotion_goal}' and my current mood is '{selected_mood}'.
     Below are the details of the meal plan:
 
     {json.dumps(meal_details, indent=2)}
 
-    Provide a general explanation for why this meal plan aligns with the user's emotional goal.
+    Provide a general explanation for why this meal plan aligns with my emotional goal.
     """
     
     api_key = os.getenv("OPENAI_KEY")
