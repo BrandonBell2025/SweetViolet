@@ -364,7 +364,7 @@ async def get_random_recipes(
     # Simplify the recipe data
     def simplify_meal_data(meal_data):
         return {
-            "_id": meal_data["_id"],
+            "_id": str(meal_data["_id"]),
             "Recipe_Name": meal_data["Recipe_Name"],
             "calories": meal_data["calories"],
         }
@@ -384,18 +384,19 @@ async def get_random_recipes(
     prompt = (
         f"You will receive 80 recipes. Construct a one-week meal plan based on those recipes and the user's preferences."
         f"I want you to generate these meals each day: {preferences['selectedMeals']}"
-        f"User wants to {preferences['selectedGoal']}, likes {preferences['preferredCuisine']} & {preferences['dietaryRestriction']} food, excercise level: {preferences['activityLevel']} and wants to {preferences['Goals']}."
+        f"Most importantly, the user currently feels {preferences['selectedMood']} and wants to {preferences['selectedEmotionGoal']} with the help of the meal plan you generate."
+        f"Additionally, the user wants to {preferences['selectedGoal']}, likes {preferences['preferredCuisine']} & {preferences['dietaryRestriction']} food, exercise level: {preferences['activityLevel']} and wants to {preferences['Goals']}."
         "Output in the following json format, do not deviate or leave comments in the response: {meals: [all meal ids used in meal plan], scheduledDates:[{'day': '1', 'breakfast': 'id1', 'lunch':'id2', 'dinner': 'id3'}, {'day2':...], targetNutrition: {'calories': value, 'protein': value, 'carbs': value, 'fat': value} }"
-        f"Here are the recipes{simplified_recipes}"
-        "Make sure that every id you recommend to me can be found in recipes I am sending you. Do not make up any, if there are no recipes that fit the above preferences select a random one from the provided list" 
+        "Make sure that every id you recommend to me can be found in recipes I am sending you. Do not make up any, if there are no recipes that fit the above preferences select a random one from the provided list. Ensure the response contains only valid JSON. Avoid comments or additional text."
     )
 
     # Create a response using the GPT-4o mini model
     response = client.chat.completions.create(
         model="gpt-4o-mini",
-        messages=[{"role": "user", "content": prompt}],
+        messages=[{"role": "system", "content": prompt},
+                  {"role": "user", "content": json.dumps(simplified_recipes)}],
         temperature=1,
-        max_tokens=4000,
+        max_tokens=8000,
         top_p=1,
         frequency_penalty=0,
         presence_penalty=0
@@ -420,6 +421,43 @@ async def get_random_recipes(
         print("looks like it was in json:",response_message)
         json_object = json.loads(response_message)
         return JSONResponse(content=json_object)
+
+
+@app.post("/openai/explanations")
+async def generate_general_explanation(data: dict):
+    meal_details = data.get("mealDetails")
+    selected_emotion_goal = data.get("selectedEmotionGoal")
+    selected_mood = data.get("selectedMood")
+
+    # Construct the OpenAI prompt
+    prompt = f"""
+    Previously, you have generated the following meal plan to help a user '{selected_emotion_goal}' and their current mood is '{selected_mood}'.
+    Below are the details of the meal plan:
+
+    {json.dumps(meal_details, indent=2)}
+
+    Provide a general explanation for why this meal plan aligns with the user's emotional goal.
+    """
+    
+    api_key = os.getenv("OPENAI_KEY")
+    client = OpenAI(api_key=api_key)
+
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "system", "content": "You are an assistant providing general explanations for meal plans. It's best if explanations are concise and based on nutrition evidence."},
+              {"role": "user", "content": prompt}],
+        temperature=1,
+        max_tokens=8000,
+        top_p=1,
+        frequency_penalty=0,
+        presence_penalty=0
+    )
+
+    response_dict = response.model_dump()
+    response_message = response_dict["choices"][0]["message"]["content"].strip('json').strip('')
+    print(response_message)
+    return {"generalExplanation": response_message}
+
 
 
 if __name__ == "__main__":
