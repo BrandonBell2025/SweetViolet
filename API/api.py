@@ -10,8 +10,11 @@ import random
 import requests
 from openai import OpenAI
 import json
+
+import csv
 import re
 from fastapi.responses import JSONResponse
+
 
 
 
@@ -462,3 +465,51 @@ async def generate_general_explanation(data: dict):
 
 if __name__ == "__main__":
     uvicorn.run("api:app", host="0.0.0.0", port=8000, reload=True)
+
+
+
+
+#endpoint to convert edamam ingredients to real trader joe's ingredients
+# Load CSV into a dictionary
+ingredient_matches = {}
+
+def load_csv(file_path):
+    """Load CSV data into a dictionary, ignoring numbers at the beginning of keys and normalizing whitespace."""
+    global ingredient_matches
+    with open(file_path, mode='r', encoding='utf-8') as csvfile:
+        reader = csv.reader(csvfile)
+        next(reader)  # Skip the header row
+        for row in reader:
+            if len(row) >= 2:
+                # Remove leading numbers, dots, and spaces from the ingredient names
+                key = re.sub(r"^\d+\.\s*", "", row[0]).strip().lower()  # Normalize key by stripping trailing spaces
+                value = row[1].strip()  # Normalize value by stripping spaces
+
+                # If the value starts with "No direct match. Substitute:", remove it
+                if value.startswith("No direct match. Substitute:"):
+                    value = value.replace("No direct match. Substitute:", "").strip()
+
+                ingredient_matches[key.lower()] = value  # Store normalized, lowercase key for case-insensitive matching
+    print(f"Loaded Ingredients: {ingredient_matches}")
+
+# Load the CSV data
+current_dir = os.path.dirname(__file__)  # Directory of the current file
+csv_path = os.path.join(current_dir, "../Product/remade_recipes.csv")  # Relative path to the CSV file
+
+load_csv(csv_path)
+
+# Define input model
+class IngredientRequest(BaseModel):
+    ingredients: list[str]
+
+# API endpoint
+@app.post("/get-matches")
+def get_matches(request: IngredientRequest):
+    """Return matching items or substitutes for the given ingredients."""
+    results = {}
+    for ingredient in request.ingredients:
+        # Normalize input ingredient by stripping spaces and converting to lowercase
+        normalized_ingredient = ingredient.strip().lower()
+        match = ingredient_matches.get(normalized_ingredient, "No match found")
+        results[ingredient] = match
+    return {"results": results}
