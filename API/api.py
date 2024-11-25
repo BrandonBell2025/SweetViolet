@@ -190,6 +190,20 @@ async def delete_item(item_id: str):
     except Exception as e:
         raise HTTPException(status_code=400, detail="Invalid item ID")
 
+# NEW: GET items by item_title (search)
+@app.get("/items/search/")
+async def search_items(item_title: str):
+    try:
+        # Perform a case-insensitive search for items by item_title
+        query = {"item_title": {"$regex": item_title, "$options": "i"}}
+        items = []
+        for item in items_collection.find(query):
+            item["_id"] = str(item["_id"])
+            items.append(item)
+        return items
+    except Exception as e:
+        raise HTTPException(status_code=400, detail="Error searching for items")
+
 # Recipe endpoints
 # GET all recipes
 @app.get("/recipes/")
