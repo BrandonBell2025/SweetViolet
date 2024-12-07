@@ -473,7 +473,7 @@ async def generate_general_explanation(data: dict):
     response_dict = response.model_dump()
     response_message = response_dict["choices"][0]["message"]["content"].strip('json').strip('')
     print(response_message)
-    return {"generalExplanation": response_message}
+    return {"generalExplanation": response_message} 
 
 
 
