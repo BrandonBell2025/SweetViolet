@@ -83,6 +83,12 @@ class User(BaseModel):
     Email: str
     Password: str
 
+
+@app.get("/api/google-maps-key")
+async def get_google_maps_key():
+    google_maps_api_key = os.getenv("GOOGLE_MAPS_API_KEY")
+    return JSONResponse({"googleMapsApiKey": google_maps_api_key})
+
 # User endpoints
 # GET all users
 @app.get("/users/")
@@ -528,7 +534,3 @@ def get_matches(request: IngredientRequest):
         results[ingredient] = match
     return {"results": results}
 
-@app.get("/api/google-maps-key")
-async def get_google_maps_key():
-    google_maps_api_key = os.getenv("GOOGLE_MAPS_API_KEY")
-    return JSONResponse({"googleMapsApiKey": google_maps_api_key})
