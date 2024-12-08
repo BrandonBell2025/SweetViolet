@@ -34,18 +34,15 @@ users_collection = db["Users_Collection"]  # New collection for users
 # Initialize FastAPI app
 app = FastAPI()
 
-#handle CORS issues
-origins = [
-    "http://localhost:3000"
-]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins for testing
+    allow_origins=["https://moodmeals-frontend-1011833328775.us-central1.run.app"],  # Add the React app's URL here
     allow_credentials=True,
     allow_methods=["*"],  # Allow all HTTP methods
     allow_headers=["*"],  # Allow all headers
 )
+
 
 
 # Pydantic models to ensure proper data validation
