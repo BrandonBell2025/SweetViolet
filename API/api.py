@@ -527,3 +527,8 @@ def get_matches(request: IngredientRequest):
         match = ingredient_matches.get(normalized_ingredient, "No match found")
         results[ingredient] = match
     return {"results": results}
+
+@app.get("/api/google-maps-key")
+async def get_google_maps_key():
+    google_maps_api_key = os.getenv("GOOGLE_MAPS_API_KEY")
+    return JSONResponse({"googleMapsApiKey": google_maps_api_key})
