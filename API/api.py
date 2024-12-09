@@ -37,7 +37,7 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://moodmeals-frontend-1011833328775.us-central1.run.app"],  # Add the React app's URL here
+    allow_origins=["*"],  # Add the React app's URL here
     allow_credentials=True,
     allow_methods=["*"],  # Allow all HTTP methods
     allow_headers=["*"],  # Allow all headers
