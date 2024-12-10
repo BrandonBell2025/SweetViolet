@@ -405,7 +405,7 @@ async def get_random_recipes(
         f"You will receive 80 recipes. Construct a one-week meal plan based on those recipes and the user's preferences."
         f"I want you to generate these meals each day: {preferences['selectedMeals']}"
         f"Most importantly, the user currently feels {preferences['selectedMood']} and wants to {preferences['selectedEmotionGoal']} with the help of the meal plan you generate."
-        f"Additionally, the user wants to {preferences['selectedGoal']}, likes {preferences['preferredCuisine']} & {preferences['dietaryRestriction']} food, exercise level: {preferences['activityLevel']} and wants to {preferences['Goals']}."
+        f"Additionally, the user wants to {preferences['selectedGoal']}, likes {preferences['preferredCuisine']} food, exercise level: {preferences['activityLevel']} and has the following dietary restrictions: {preferences['Goals']}."
         "Output in the following json format, do not deviate or leave comments in the response: {meals: [all meal ids used in meal plan], scheduledDates:[{'day': '1', 'breakfast': 'id1', 'lunch':'id2', 'dinner': 'id3'}, {'day2':...], targetNutrition: {'calories': value, 'protein': value, 'carbs': value, 'fat': value} }"
         "Make sure that every id you recommend to me can be found in recipes I am sending you. Do not make up any, if there are no recipes that fit the above preferences select a random one from the provided list. Ensure the response contains only valid JSON. Avoid comments or additional text."
     )
