@@ -27,7 +27,7 @@ OPENAI_KEY = os.getenv("OPENAI_KEY")
 client = MongoClient(mongodb_uri)
 db = client["Sweet_Violet"]
 items_collection = db["Trader_Joes_Items"]
-recipes_collection = db["Recipes"]
+recipes_collection = db["Recipes_new"]
 meal_plans_collection = db["MealPlan_Collection"]  # New collection for meal plans
 users_collection = db["Users_Collection"]  # New collection for users
 
