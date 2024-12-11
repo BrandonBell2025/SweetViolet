@@ -1,4 +1,4 @@
-# Sweet Violet - Dynamic Meal Planner (Backend)
+# Mood Meals- Dynamic Meal Planner (Backend)
 
 By: Allen, Brandon, Howard, and Yongje
 
