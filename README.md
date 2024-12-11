@@ -1,12 +1,18 @@
-# Sweet Violet - Dynamic Meal Planner
+# Sweet Violet - Dynamic Meal Planner (Backend)
 
 By: Allen, Brandon, Howard, and Yongje
 
 ## Overview
 
-**Sweet Violet** is a dynamic meal planning application designed to help users achieve their personal health and nutritional goals. The system dynamically adjusts meal plans based on user input, ensuring that daily nutritional targets are met. For example, if a user consumes a high-calorie meal (e.g., greasy chicken) that exceeds their daily calorie goal on day 2, the planner will automatically recommend lighter, healthier meals on day 3 to compensate and maintain balance over time.
+**Mood Meals** is a dynamic meal-planning application designed to help users achieve their dietary and emotional wellness goals.
+
+The backend server is hosted on Google Cloud, and it needs to be started to enable dynamic API-based interactions.
+
+To effectively meet the needs of diverse user demographics, the application is built with flexibility in mind, featuring dynamic meal plans, integrations with APIs (e.g., Google Maps and FAST API), and easy scalability through MongoDB. 
 
 The application uses MongoDB to manage user profiles, meal details, tags for categorization, and meal plans. This flexible database structure allows for easy updates and adaptation to evolving nutritional goals and preferences.
+
+The Frontend Repo can be found at: https://github.com/yongjejeon/SweetVioletWeb
 
 ### Data Model
 
@@ -369,3 +375,51 @@ You can test the API with the following endpoints using tools like Postman or a 
 
   - **Description**: Deletes a specific meal plan by ID.
   - **Response**: Returns success if deleted or error if not found.
+  - 
+
+### Ingredient Matching Endpoint
+
+#### Overview
+The ingredient matching feature enables users to convert generic ingredient names (e.g., "granulated sugar") into real Trader Joe's products or their closest substitutes. This functionality enhances the shopping experience by aligning recipes with available products at Trader Joe's.
+
+#### How It Works
+1. **CSV Data Source**: 
+   - The system uses a pre-defined CSV file (`remade_recipes.csv`) that maps generic ingredients to Trader Joe's items or appropriate substitutes.
+   - Each row in the CSV file contains:
+     - **Column 1**: Generic ingredient name.
+     - **Column 2**: Corresponding Trader Joe's product or a substitute.
+
+2. **Data Processing**:
+   - The CSV is loaded into a Python dictionary (`ingredient_matches`) for fast lookup.
+   - During the loading process:
+     - Numbers, dots, and leading whitespace are stripped from ingredient names.
+     - Values prefixed with `"No direct match. Substitute:"` are cleaned to only include the substitute text.
+     - All keys are normalized to lowercase for case-insensitive matching.
+
+3. **API Endpoint**: 
+   - The `/get-matches` endpoint takes a list of ingredients as input and returns their Trader Joe's matches or substitutes.
+   - Unmatched ingredients are labeled as `"No match found"`.
+
+#### Endpoint Details
+
+##### URL
+`POST /get-matches`
+
+##### Request Body
+The API expects a JSON object with a list of ingredients:
+    ```json
+    {
+      "ingredients": [
+        "granulated sugar",
+        "marinated artichoke"
+      ]
+    }
+
+---
+
+### Future Improvements
+
+1.	Enhanced AI Integration: Use more personalized algorithms for meal recommendations.
+2.	Real-time User Feedback: Implement feedback mechanisms to refine recommendations.
+3.	Mobile App Integration: Build a mobile-friendly API for easier access.
+
