@@ -345,76 +345,55 @@ async def delete_meal_plan(meal_plan_id: str):
 
 #AI ENDPOINTS
 #Using OPENAI to generate meal plan
+# AI ENDPOINTS
+# Using OPENAI to generate meal plan
 @app.get("/recipes/random/{packaged_preferences}/")
 async def get_random_recipes(
-    calories: float = None,
-    cuisine_type: str = None,
-    meal_type: str = None,
-    diet_label: str = None,
-    limit: int = 80,
-    packaged_preferences: str = None
+        cuisine_type: str = None,
+        meal_type: str = None,
+        diet_label: str = None,
+        limit: int = 50,
+        packaged_preferences: str = None
 ):
-    # Base query to exclude recipes with an empty Recipe_Name
-    query = {"Recipe_Name": {"$ne": ""}}
-
-    # Apply additional filters if specified
-    if calories is not None:
-        query["calories"] = {"$lte": calories}
-    if cuisine_type:
-        query["cuisine_type"] = cuisine_type
-    if meal_type:
-        query["meal_type"] = meal_type
-    if diet_label:
-        query["diet_labels"] = diet_label
-
-    # Aggregation pipeline for filtering and sampling
-    pipeline = [{"$match": query}, {"$sample": {"size": limit}}]
-    recipes = list(recipes_collection.aggregate(pipeline))
-
-    # Fill with additional random recipes if needed
-    if len(recipes) < limit:
-        additional_needed = limit - len(recipes)
-        additional_pipeline = [
-            {"$match": {"Recipe_Name": {"$ne": ""}}},
-            {"$sample": {"size": additional_needed}}
-        ]
-        additional_recipes = list(recipes_collection.aggregate(additional_pipeline))
-        recipes.extend(additional_recipes)
-
     # Simplify the recipe data
-    def simplify_meal_data(meal_data):
+    def simplify_meal_data(meal_data,n):
         return {
-            "_id": str(meal_data["_id"]),
+            "No.": n,
             "Recipe_Name": meal_data["Recipe_Name"],
             "calories": meal_data["calories"],
         }
 
-    simplified_recipes = [simplify_meal_data(recipe) for recipe in recipes]
+    # Base query to exclude recipes with an empty Recipe_Name
+    query = {}
+    query["health_labels"] = "Vegan"
+
+    recipes = []
+    a=0
+    for recipe in recipes_collection.find(query):
+        recipe["_id"] = str(recipe["_id"])
+        recipes.append(recipe)
+        a+=1
+        if (a==limit):
+            break
+
+    simplified_recipes = [simplify_meal_data(recipe, n) for n, recipe in enumerate(recipes)]
 
     api_key = os.getenv("OPENAI_KEY")
     client = OpenAI(api_key=api_key)
 
-    # Decode and deserialize the packaged_preferences
-    try:
-        preferences = json.loads(packaged_preferences)
-    except json.JSONDecodeError:
-        return {"error": "Invalid packaged_preferences format"}
-    preferences['selectedMeals']
-
     prompt = (
-        f"You will receive 80 recipes. Construct a one-week meal plan based on those recipes and the user's preferences."
-        f"I want you to generate these meals each day: {preferences['selectedMeals']}"
-        f"Most importantly, the user currently feels {preferences['selectedMood']} and wants to {preferences['selectedEmotionGoal']} with the help of the meal plan you generate."
-        f"Additionally, the user wants to {preferences['selectedGoal']}, likes {preferences['preferredCuisine']} food, exercise level: {preferences['activityLevel']} and has the following dietary restrictions: {preferences['Goals']}."
-        "Output in the following json format, do not deviate or leave comments in the response: {meals: [all meal ids used in meal plan], scheduledDates:[{'day': '1', 'breakfast': 'id1', 'lunch':'id2', 'dinner': 'id3'}, {'day2':...], targetNutrition: {'calories': value, 'protein': value, 'carbs': value, 'fat': value} }"
-        "Make sure that every id you recommend to me can be found in recipes I am sending you. Do not make up any, if there are no recipes that fit the above preferences select a random one from the provided list. Ensure the response contains only valid JSON. Avoid comments or additional text."
+        f"You will receive {a} recipes. Construct a one-week meal plan based on those recipes and the user's preferences."
+        f"The user currently feels tired and wants to be more energetic with the help of the meal plan you generate."
+        f"Additionally, the user wants to bulk, likes American food, exercise level: moderate and has the following dietary restrictions: NA."
+        "Output in the following json format, do not deviate or leave comments in the response: {meals: [all 21 meal No.s used in meal plan, there can be repeated No.s/meals], scheduledDates:[{'day': '1', 'breakfast': 'No.', 'lunch':'No.', 'dinner': 'No.'}, {'day2':...], targetNutrition: {'calories': value, 'protein': value, 'carbs': value, 'fat': value} }"
+        "Make sure that every No. you recommend to me can be found in recipes I am sending you. Ensure the response contains only valid JSON. Avoid comments or additional text."
     )
 
     # Create a response using the GPT-4o mini model
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[{"role": "system", "content": prompt},
-                  {"role": "user", "content": json.dumps(simplified_recipes)}],
+                  {"role": "user", "content": str(simplified_recipes)}],
         temperature=1,
         max_tokens=8000,
         top_p=1,
@@ -425,22 +404,41 @@ async def get_random_recipes(
     # Convert the response to a dictionary and extract the content
     response_dict = response.model_dump()
     response_message = response_dict["choices"][0]["message"]["content"].strip('json').strip('')
-    print(response_message)
 
-    match = re.search(r"```json\n(.*?)\n```", response_message, re.DOTALL)
+    response_data = json.loads(response_message)
+    meal_ids = []
+    for n in response_data["meals"]:
+        meal_ids.append(recipes[n]["_id"])
 
-    if match:
-        json_content = match.group(1)
-        # Convert the extracted string into a proper JSON object
-        try:
-            json_object = json.loads(json_content)
-            return JSONResponse(content=json_object)  # Proper JSON response
-        except json.JSONDecodeError:
-            return JSONResponse(content={"error": "Invalid JSON content"}, status_code=400)
-    else:
-        print("looks like it was in json:",response_message)
-        json_object = json.loads(response_message)
-        return JSONResponse(content=json_object)
+    target_nutrition = response_data["targetNutrition"]
+
+    meals = meal_ids
+
+    # Generate scheduledDates
+    scheduled_dates = []
+    meals_per_day = 3  # Breakfast, lunch, dinner
+    days = len(meal_ids) // meals_per_day
+
+    for day in range(days):
+        start_index = day * meals_per_day
+        scheduled_dates.append({
+            "day": str(day + 1),
+            "breakfast": meal_ids[start_index],
+            "lunch": meal_ids[start_index + 1],
+            "dinner": meal_ids[start_index + 2]
+        })
+
+    # Combine everything into the final data structure
+    meal_plan = {
+        "meals": meals,
+        "scheduledDates": scheduled_dates,
+        "targetNutrition": target_nutrition
+    }
+
+    # Print the result as JSON
+    meal_plan_json = json.dumps(meal_plan, indent=4)
+
+    return meal_plan_json
 
 
 @app.post("/openai/explanations")
